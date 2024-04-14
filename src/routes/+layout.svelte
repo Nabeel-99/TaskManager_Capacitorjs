@@ -1,11 +1,23 @@
-<script>
-
+<script lang="ts">
 	import Navbar from "../components/Navbar.svelte";
   import '../app.css';
+     import  { onMount } from "svelte";
+  import { auth } from "$lib/firebase/firebase";
+	const nonAuthRoutes = ['/', 'product']
+	 onMount(() => {
+		console.log('mounting')
+		const unsubscribe = auth.onAuthStateChanged(async user => {
+			const currentPath = window.location.pathname
+
+			if(!user && !nonAuthRoutes.includes(currentPath)){
+				window.location.href ='/'
+			}
+		})
+	 })
 </script>
 
 <div class="app">
-  <!-- <Navbar/>  -->
+  <Navbar/> 
 
 	<main>
 		<slot />

@@ -1,5 +1,6 @@
 <script lang="ts">
     export let showForm: () => void;
+    export let taskList: {title: string, description: string, category:string[], priority:string}[] = [];
     let progress: number = 0
     let isCompleted: boolean = false
 
@@ -9,16 +10,18 @@
         On Going
     </div>
     <div class="grid grid-flow-col xl:grid-rows-1 xl:grid-flow-row gap-8 overflow-y-scroll">
-    <div class="flex flex-col w-96 gap-3 border rounded-lg shadow-md p-3">
+      {#each taskList as task }
+      <div class="flex flex-col w-96 gap-3 border rounded-lg shadow-md p-3">
         <div class="flex justify-between">
-            <h4 class="text-md">Title</h4>
+            <h4 class="text-md">{task.title}</h4>
             <h4 class="text-md">View full task</h4>
         </div>
-        <h4 class="text-md">Task Description</h4>
+        <h4 class="text-md">{task.description}</h4>
         <div class="flex gap-2">
-            <h4 class="text-md">Task category</h4>
-            <h4 class="text-md">Task category</h4>
-            <h4 class="text-md">Task type</h4>
+            {#each task.category as category }
+                <h4 class="text-md">{category}</h4>  
+            {/each}
+            <h4 class="text-md">{task.priority}</h4>
         </div>
         <h4 class="text-md">date created</h4>
         <h4 class="text-md">Title? optional</h4>
@@ -40,10 +43,12 @@
         </div>
         <div class="flex justify-between items-center">
             <div class="flex gap-2 items-center">
-                <input type="checkbox" class="h-4 w-4 cursor-pointer" bind:checked={isCompleted}
-                    on:change={() => progress = 100}
-                />
-                <p>Mark as completed</p>
+               <form>
+                <input type="checkbox" id="complete" class="h-4 w-4 cursor-pointer" bind:checked={isCompleted}
+                on:change={() => progress = 100}
+            />
+                <label for="complete">Mark as completed</label>
+                </form>
             </div>
             <div class="flex gap-3 justify-center items-center">
                 <button on:click={showForm}  class="border px-3 py-2 rounded-lg">
@@ -57,6 +62,11 @@
           
         </div>
     </div>
+      {/each}  
+      {#if taskList.length === 0}
+        <div>NO TASKS ADDED</div>
+      {/if}
+  
 
 </div>
     

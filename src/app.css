@@ -8,5 +8,6 @@ html{
 
 *{
     font-family: sans-serif;
+    transition-duration: 400ms;
 }
 

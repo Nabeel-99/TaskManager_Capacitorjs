@@ -11,7 +11,7 @@
         </div>
         <div class="flex gap-5">
            <div aria-current={$page.url.pathname.startsWith('/login') ? 'page' : undefined}>
-                <a href="/dashboard" class="hover:text-purple-800 hover:duration-150">Login</a>
+                <a href="/login" class="hover:text-purple-800 hover:duration-150">Login</a>
             </div>
             <div aria-current={$page.url.pathname.startsWith('/register') ? 'page' : undefined}>
                 <a href="/register" class="hover:text-purple-800 hover:duration-150">Create Account</a>
