@@ -5,7 +5,10 @@
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",
-		"preview": "vite preview"
+		"preview": "vite preview",
+		"generate": "drizzle-kit generate:sqlite",
+		"migrate": "drizzle-kit push:sqlite",
+		"studio": "drizzle-kit studio"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^3.0.0",
@@ -14,6 +17,7 @@
 		"autoprefixer": "^10.4.19",
 		"dotenv": "^16.4.5",
 		"dotenv-webpack": "^8.1.0",
+		"drizzle-kit": "^0.20.14",
 		"postcss": "^8.4.38",
 		"svelte": "^4.2.7",
 		"tailwindcss": "^3.4.3",
@@ -22,6 +26,9 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"firebase": "^10.11.0"
+		"@libsql/client": "^0.6.0",
+		"drizzle-orm": "^0.30.8",
+		"firebase": "^10.11.0",
+		"svelte-modal": "^0.4.0"
 	}
 }

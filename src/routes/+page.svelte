@@ -1,5 +1,6 @@
-<script>
+<script lang="ts">
 	import heroImage from "$lib/overview.png"
+    export let darkMode: boolean
 </script>
 <!-- landing page -->
 <div class="flex flex-col justify-center text-center items-center gap-2">
@@ -9,10 +10,10 @@ Our intuitive tools offer flexibility, empowering you to efficiently manage task
 
 	</p>
     <div class="mt-4">
-        <a href="/login" class="px-5 py-3 bg-[#232529] hover:bg-[#3a3d43] text-white shadow-md rounded-md ">Get started</a>
+        <a href="/login" class="px-5 py-3 bg-[#232529] hover:bg-[#3a3d43] text-white shadow-md rounded-md dark:bg-white dark:text-black dark:hover:bg-slate-300" >Get started</a>
     </div>
 	<div class="mt-8  mb-7 flex items-center justify-center">
-		<img src={heroImage} alt="hero" class="shadow-sm object-contain md:w-[70%] p-3"/>
+		<img src={heroImage} alt="hero" class="shadow-md shadow-gray-500 border border-[#363638] rounded-2xl drop-shadow-lg object-contain md:w-[70%]"/>
 	</div>
 </div>
 

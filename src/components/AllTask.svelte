@@ -1,18 +1,138 @@
 <script lang="ts">
+  import { View } from "drizzle-orm";
 import CompletedTask from "./CompletedTask.svelte";
 import OnGoingTask from "./OnGoingTask.svelte";
+import ViewTask from "./ViewTask.svelte";
+import dashImage from "$lib/dashImage.jpeg"
+  import EditTaskForm from "./EditTaskForm.svelte";
+  import { auth, db } from "$lib/firebase/firebase";
+  import { arrayRemove, arrayUnion, collection, doc, getDocs, query, updateDoc, where } from "firebase/firestore";
+export let closeEditForm: () => void
+export let showEditForm: () => void
+export let isOpen: boolean
+let showViewTask: boolean = false
+let taskDetails: any = null
+let showEditTaskForm: boolean = false
+let userTasks: any[] = []
+let completedTasks: any[] = []
+let sortByProgressAsc = false
+let searchTerm: string = ''
+let filteredTasks: any[] = []
 
-export let showForm: () => void
+
+ 
+const fetchUserTasks = async () => {
+        const user = auth.currentUser;
+        if(user){
+            const q = query(collection(db, "users"), where("email", "==", user.email))
+            const querySnapshot = await getDocs(q)
+            querySnapshot.forEach((doc) => {
+                userTasks = doc.data().tasks || []
+            })
+            console.log(userTasks)
+        }
+    }  
+const markAsComplete = async (task: any) => {
+    try {
+        const user = auth.currentUser
+        if(!user){
+            console.log("User is not authenticated")
+            return
+        }
+        task.progress = 100
+        task.isCompleted = true
+        const completedAt = new Date()
+        task.completedAt = completedAt
+
+        const updatedTasks = userTasks.filter(t => t !== task)
+    
+
+        const userDocRef = doc(db, `users/${user.uid}`)
+        await updateDoc(userDocRef, {
+            tasks: updatedTasks,
+            completedTasks: arrayUnion(task)
+        })
+        completedTasks = task
+        window.location.reload()
+        console.log("Task marked as complete:", task)
+    } catch (error) {
+        console.log("error marking as complete", error)
+    }
+}
+   
+const viewTask = (task: any) => {
+    showViewTask =  true;
+    console.log("task details: ", task)
+    taskDetails = task
+}
+const editForm = (task: any) => {
+    showEditForm()
+    console.log("task details: ", task)
+    showEditTaskForm = true
+    taskDetails = task
+}
+
+const closeForm = () => {
+    closeEditForm()
+    showEditTaskForm = false
+}
+
+const closeViewTask = () => {
+    showViewTask = false
+}
+const sortByProgress = () => {
+    sortByProgressAsc = !sortByProgressAsc
+    if(sortByProgressAsc){
+        userTasks.sort((a, b) => b.progress - a.progress)
+    }else{
+        userTasks.sort((a, b) => a.progress - b.progress)
+    }
+    userTasks = [...userTasks]
+    console.log(`sorted tasks:`, userTasks)
+    
+}
+
+
 
 </script>
-   <div class="flex flex-col xl:flex-row  gap-8 xl:gap-48 xl:h-[100vh]">
-    <div class="overflow-y-scroll">
-        <OnGoingTask showForm={showForm}/>
-    </div>
-    <div class="overflow-y-scroll">
-        <CompletedTask/>
-    </div>
-
+   <div class="flex flex-col justify-center gap-8 xl:flex-row xl:gap-36 xl:h-[100vh]" class:xl:gap-8={showViewTask}>
+        <div class="overflow-y-scroll" class:hidden={showEditTaskForm}>
+            <OnGoingTask
+                markAsComplete={markAsComplete}
+                fetchUserTasks={fetchUserTasks}
+                viewTask={viewTask} 
+                editForm={editForm} 
+                userTasks={userTasks}/>
+        </div>
+        <!-- {#if completedTasks.length === 0 && userTasks.length === 0}
+            <div class="flex flex-col items-center gap-4">
+                <img src={dashImage} alt="da" class="rounded-full w-72 "/>
+                <div class="flex flex-col gap-2 text-center text-xl">
+                    <h3>This is your <span class="font-bold bg-gradient-to-r from-orange-600 from-10% to-green-200 bg-clip-text ">central workspace.</span> Here,</h3>
+                    <p>you can see easily view all your tasks organizing</p>
+                    <p>your workload in structured way.</p>
+                </div>
+            </div>
+            
+        {/if} -->
+        <div class="overflow-y-scroll" class:hidden={showViewTask || showEditTaskForm}>
+            <CompletedTask/>
+        </div>
+        {#if showViewTask}
+        <div class="overflow-y-scroll mt-8" class:hidden={showEditTaskForm}>
+            <ViewTask isOpen={isOpen} closeTask={closeViewTask} taskDetails={taskDetails}/>
+        </div>
+        {/if}
+        {#if showEditTaskForm}
+        <div class="overflow-y-scroll flex justify-center">
+            <EditTaskForm userTasks={userTasks} taskDetails={taskDetails} closeEditForm={closeForm}/>
+        </div>
+      
+        {/if}
+<!-- sort btn -->
+        <div class="fixed md:right-10 top-[21%] md:top-24 right-0 border px-2 py-1 mr-10 text-xl rounded-lg hover:bg-[#232529] hover:text-white dark:bg-[#626366] dark:border-none">
+            <button on:click={sortByProgress} title="sort by progress" ><i class="fa-solid fa-arrow-down-wide-short"></i></button>
+        </div>
     </div>
 
 <style>
