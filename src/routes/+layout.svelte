@@ -39,8 +39,6 @@
 				const userRef = doc(db, 'users', user.uid)
 				dataToSetToStore = {
 					email: user.email, 
-					tasks: [],
-					completedTasks: [],
 					fullName: user?.displayName
 				}
 				await setDoc(userRef,dataToSetToStore,{merge: true})

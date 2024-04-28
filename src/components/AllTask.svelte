@@ -7,9 +7,13 @@ import dashImage from "$lib/dashImage.jpeg"
   import EditTaskForm from "./EditTaskForm.svelte";
   import { auth, db } from "$lib/firebase/firebase";
   import { arrayRemove, arrayUnion, collection, doc, getDocs, query, updateDoc, where } from "firebase/firestore";
+  import { onMount } from "svelte";
 export let closeEditForm: () => void
 export let showEditForm: () => void
 export let isOpen: boolean
+export let alltaskCard: boolean
+export let ongoingCard: boolean
+export let completedCard: boolean
 let showViewTask: boolean = false
 let taskDetails: any = null
 let showEditTaskForm: boolean = false
@@ -20,6 +24,7 @@ let searchTerm: string = ''
 let filteredTasks: any[] = []
 
 
+
  
 const fetchUserTasks = async () => {
         const user = auth.currentUser;
@@ -28,6 +33,7 @@ const fetchUserTasks = async () => {
             const querySnapshot = await getDocs(q)
             querySnapshot.forEach((doc) => {
                 userTasks = doc.data().tasks || []
+                filteredTasks = userTasks
             })
             console.log(userTasks)
         }
@@ -52,7 +58,7 @@ const markAsComplete = async (task: any) => {
             tasks: updatedTasks,
             completedTasks: arrayUnion(task)
         })
-        completedTasks = task
+        userTasks = updatedTasks
         window.location.reload()
         console.log("Task marked as complete:", task)
     } catch (error) {
@@ -83,26 +89,32 @@ const closeViewTask = () => {
 const sortByProgress = () => {
     sortByProgressAsc = !sortByProgressAsc
     if(sortByProgressAsc){
-        userTasks.sort((a, b) => b.progress - a.progress)
+        filteredTasks.sort((a, b) => b.progress - a.progress)
     }else{
-        userTasks.sort((a, b) => a.progress - b.progress)
+        filteredTasks.sort((a, b) => a.progress - b.progress)
     }
-    userTasks = [...userTasks]
-    console.log(`sorted tasks:`, userTasks)
+    filteredTasks = [...filteredTasks]
+    console.log(`sorted tasks:`, filteredTasks)
     
 }
 
 
+// onMount(() => {
+//     fetchUserTasks()
+// })
 
 </script>
    <div class="flex flex-col justify-center gap-8 xl:flex-row xl:gap-36 xl:h-[100vh]" class:xl:gap-8={showViewTask}>
         <div class="overflow-y-scroll" class:hidden={showEditTaskForm}>
-            <OnGoingTask
-                markAsComplete={markAsComplete}
-                fetchUserTasks={fetchUserTasks}
-                viewTask={viewTask} 
-                editForm={editForm} 
-                userTasks={userTasks}/>
+           {#if ongoingCard}
+           <OnGoingTask
+           markAsComplete={markAsComplete}
+           fetchUserTasks={fetchUserTasks}
+           viewTask={viewTask} 
+           editForm={editForm} 
+           filteredTasks={filteredTasks}
+           userTasks={userTasks}/>
+           {/if}
         </div>
         <!-- {#if completedTasks.length === 0 && userTasks.length === 0}
             <div class="flex flex-col items-center gap-4">
@@ -116,7 +128,9 @@ const sortByProgress = () => {
             
         {/if} -->
         <div class="overflow-y-scroll" class:hidden={showViewTask || showEditTaskForm}>
-            <CompletedTask/>
+          {#if completedCard}
+             <CompletedTask/>
+          {/if}
         </div>
         {#if showViewTask}
         <div class="overflow-y-scroll mt-8" class:hidden={showEditTaskForm}>

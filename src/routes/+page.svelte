@@ -1,6 +1,10 @@
 <script lang="ts">
 	import heroImage from "$lib/overview.png"
     export let darkMode: boolean
+    import landingImage from "$lib/landingImage.svg"
+
+
+    let projectName: string = ''
 </script>
 <!-- landing page -->
 <div class="flex flex-col justify-center text-center items-center gap-2">
@@ -16,7 +20,6 @@ Our intuitive tools offer flexibility, empowering you to efficiently manage task
 		<img src={heroImage} alt="hero" class="shadow-md shadow-gray-500 border border-[#363638] rounded-2xl drop-shadow-lg object-contain md:w-[70%]"/>
 	</div>
 </div>
-
 <style>
 
 </style>
