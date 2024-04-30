@@ -9,7 +9,7 @@
   import { collection, getDocs, type DocumentData, query, where, doc, getDoc, updateDoc } from "firebase/firestore";
   import { auth, db } from "$lib/firebase/firebase";
   import ViewTask from "../../components/ViewTask.svelte";
-  import OnBoarding from "../../components/OnBoarding.svelte";
+
 
 
   let isOpen: boolean = false
@@ -163,9 +163,6 @@ const completed = () => {
 </script>
 
 {#if !$authStore.loading}
-{#if userTasks.length === 0}
-    <OnBoarding projectName={projectName} createProject={createProject}/>
-    {:else}
     <div class="flex flex-col h-full w-full  transition-all duration-200  md:flex-row dark:bg-[#2A2D33] ">
         <div class="text-black   md:w-20 flex flex-col md:items-center md:border-r-2  bg-white md:px-8 z-20 open dark:bg-[#1B1D21] dark:border-none" class:md:w-60={isOpen} >
             <div class="hidden md:flex flex-col h-full justify-between fixed bg-white transition-all duration-200  dark:bg-[#1B1D21]">
@@ -239,7 +236,6 @@ const completed = () => {
         </div>
            
     </div>
-{/if}
 
 {:else}
   <div class="flex items-center justify-center h-screen"> <i class="fa-solid fa-circle-notch spin text-4xl"></i> </div>

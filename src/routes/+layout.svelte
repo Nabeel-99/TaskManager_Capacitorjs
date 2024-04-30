@@ -10,6 +10,7 @@
   
 
 	let showNav: boolean = true
+	let showFooter: boolean = true
 	let showSideMenu: boolean = false;
 	const nonAuthRoutes = ['/', 'product']
 	 onMount(() => {
@@ -28,6 +29,7 @@
 			}
 			if(currentPath.startsWith('/dashboard')){
 				showNav = false
+				showFooter = false
 			}
 			if(!user){
 				return
@@ -84,10 +86,12 @@
 	<main>
 		<slot darkmode={darkMode} />
 	</main>
-
+	{#if showFooter}
 	<footer class="border-t w-screen dark:border-t-[#525355]">
 		<p> All Rights Reserved &copy; copyright 2024</p>
 	</footer>
+	{/if}
+
 </div>
 
 <style>
