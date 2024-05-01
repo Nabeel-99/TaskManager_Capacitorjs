@@ -4,7 +4,7 @@
   export let isOpen: boolean
 
 </script>
-<div class="flex flex-col bg-[#e6e7e9] dark:bg-[#3f4149] dark:text-white justify-between gap-6 text-lg h-[70vh] w-[42vw] border-2 dark:border-none border-black rounded-md overflow-scroll shadow-md p-3 px-8 mb-8 " class:w-[30rem]={isOpen}>
+<div class="flex flex-col bg-[#e6e7e9] dark:bg-[#3f4149] dark:text-white justify-between gap-6 text-lg xl:w-[50vw] border-2 dark:border-none border-black rounded-md overflow-scroll shadow-md p-3 px-8 mb-8 w " class:w-[100%]={isOpen}>
   <div class="flex flex-col gap-3 py-2">
     <div class="text-xl font-bold font-sans flex justify-center border-b-4 border-b-black dark:border-b-[#7d7f85] ">Full Task Details</div>
     <div class="flex justify-between border-b-4 border-b-black pb-3 dark:border-b-[#7d7f85]">

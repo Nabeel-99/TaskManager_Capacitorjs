@@ -20,6 +20,8 @@ Our intuitive tools offer flexibility, empowering you to efficiently manage task
 		<img src={heroImage} alt="hero" class="shadow-md shadow-gray-500 border border-[#363638] rounded-2xl drop-shadow-lg object-contain md:w-[70%]"/>
 	</div>
 </div>
+
+
 <style>
 
 </style>

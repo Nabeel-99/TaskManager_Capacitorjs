@@ -66,7 +66,7 @@
                         <a href="/register" class="hover:text-purple-800 hover:duration-150 text-md">Create Account</a>
                     </div>
                     <div>
-                        <button on:click={toggleMode} class="text-md flex items-center gap-4">
+                        <button  class="text-md flex items-center gap-4">
                             {#if darkMode}
                             <i class="fa-solid fa-sun"></i>
                              {:else}

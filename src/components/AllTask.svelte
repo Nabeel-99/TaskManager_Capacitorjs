@@ -22,6 +22,8 @@ let completedTasks: any[] = []
 let sortByProgressAsc = false
 let searchTerm: string = ''
 let filteredTasks: any[] = []
+let showCards: boolean = true
+let showTable: boolean = false
 
 
 
@@ -71,7 +73,7 @@ const viewTask = (task: any) => {
     console.log("task details: ", task)
     taskDetails = task
 }
-const editForm = (task: any) => {
+const editTask = (task: any) => {
     showEditForm()
     console.log("task details: ", task)
     showEditTaskForm = true
@@ -98,20 +100,43 @@ const sortByProgress = () => {
     
 }
 
+const showCardView = () => {
+    showCards = true
+    showTable = false
+    localStorage.setItem('view', 'cards')
+    console.log("cards clicked")
+}
 
+const showTableView = () => {
+    showTable = true
+    showCards = false
+    localStorage.setItem('view', 'table')
+    console.log("table clicked")
+}
+
+onMount(() => {
+   const preferredView = localStorage.getItem('view')
+   if(preferredView == 'table'){
+       showTableView()
+   }else{
+        showCardView()
+   }
+})
 // onMount(() => {
 //     fetchUserTasks()
 // })
 
 </script>
-   <div class="flex flex-col justify-center gap-8 xl:flex-row xl:gap-36 xl:h-[100vh]" class:xl:gap-8={showViewTask}>
-        <div class="overflow-y-scroll" class:hidden={showEditTaskForm}>
+   <div class="flex flex-col  gap-8 xl:flex-row  xl:h-[100vh] {showTable ? 'xl:flex-col gap-20' : ''}">
+        <div class="overflow-y-scroll" class:hidden={showEditTaskForm || showViewTask}>
            {#if ongoingCard}
            <OnGoingTask
+           showCards={showCards}
+           showTable={showTable}
            markAsComplete={markAsComplete}
            fetchUserTasks={fetchUserTasks}
            viewTask={viewTask} 
-           editForm={editForm} 
+           editTask={editTask} 
            filteredTasks={filteredTasks}
            userTasks={userTasks}/>
            {/if}
@@ -129,7 +154,10 @@ const sortByProgress = () => {
         {/if} -->
         <div class="overflow-y-scroll" class:hidden={showViewTask || showEditTaskForm}>
           {#if completedCard}
-             <CompletedTask/>
+             <CompletedTask
+             viewTask={viewTask}  
+             showCards={showCards}
+             showTable={showTable}/>
           {/if}
         </div>
         {#if showViewTask}
@@ -144,9 +172,18 @@ const sortByProgress = () => {
       
         {/if}
 <!-- sort btn -->
-        <div class="fixed md:right-10 top-[21%] md:top-24 right-0 border px-2 py-1 mr-10 text-xl rounded-lg hover:bg-[#232529] hover:text-white dark:bg-[#626366] dark:border-none">
-            <button on:click={sortByProgress} title="sort by progress" ><i class="fa-solid fa-arrow-down-wide-short"></i></button>
+        <div class="flex gap-8">
+            <div class="">
+                <button class="fixed md:right-[2%] top-36  md:top-24 right-0 border px-2 py-1 mr-10 text-xl rounded-lg hover:bg-[#232529] hover:text-white dark:bg-[#626366] dark:border-none" on:click={sortByProgress} title="sort by progress" ><i class="fa-solid fa-arrow-down-wide-short"></i></button>
+            </div>
+            <div class="">
+                <button class="fixed md:right-[6%] top-36  md:top-24 right-0 border px-2 py-1 mr-10 text-xl rounded-lg hover:bg-[#232529] hover:text-white dark:bg-[#626366] dark:border-none" on:click={showTableView} title="table view" ><i class="fa-solid fa-table-list"></i></button>
+            </div>
         </div>
+        <div class="">
+            <button class="fixed md:right-[10%] top-36  md:top-24 right-0 border px-3 py-1 mr-10 text-xl rounded-lg hover:bg-[#232529] hover:text-white dark:bg-[#626366] dark:border-none" on:click={showCardView} title="card view" ><i class="fa-solid fa-grip-vertical"></i></button>
+        </div>
+        
     </div>
 
 <style>

@@ -21,7 +21,7 @@
   let completedCard: boolean = true
   let displayName: string
   let showDisplayCard: boolean = false
-  let projectTitle: any[] = []
+  let taskTitles: any[] = []
   let projectName: string = ''
 
   const displayCreateCard = () => {
@@ -39,16 +39,16 @@ const fetchUserDetails = async () => {
             const docSnap = await getDoc(docRef)
             if(docSnap.exists()) {
                 const userData = docSnap.data();
-                const projects = docSnap.data().projects || []
+                const tasks = docSnap.data().tasks || []
                 displayName = userData.displayName
-                if(projects.length > 0) {
-                    projectTitle = projects
+                if(tasks.length > 0) {
+                    taskTitles = tasks.map((task:any) => task.title)
                 }else{
-                    projectTitle = ["You haven't created projects yet"];
+                    taskTitles = ["No tasks added yet"];
                 }
               
         }
-        console.log(`project title: `, projectTitle)
+        console.log(`task titles: `, taskTitles)
        
     }
 }
@@ -183,14 +183,9 @@ const completed = () => {
             {#if isOpen}
             <div class="flex flex-col absolute md:fixed bg-white transition-all duration-200  open dark:bg-[#1B1D21]">
               <SideMenu
+              taskTitles={taskTitles}
               fetchUserDetails={fetchUserDetails}
               displayName={displayName}
-              displayCreateCard={displayCreateCard}
-              closeDisplayCard={closeDisplayCard}
-              createProject={createProject}
-              projectTitle={projectTitle}
-              showDisplayCard={showDisplayCard}
-              projectName={projectName}
               closeMenu={closeMenu}/>
             </div> 
             {/if}
@@ -200,7 +195,7 @@ const completed = () => {
             <div class="flex flex-col gap-8 bg-white  border rounded-b-lg shadow-md w-full fixed pt-20  md:pt-7 justify-between  px-10 pb-4 dark:bg-[#2A2D33] dark:border-none">
                 <div class="flex flex-col gap-5 bg-white  md:flex-row justify-between items-center border-b pb-3 w-full dark:bg-[#2A2D33] dark:border-b-[#464b51]">
                     <div>
-                        <h2 class="text-2xl font-bold">Project Name</h2>
+                        <h2 class="text-2xl font-bold">My Tasks</h2>
                     </div> 
                    
                 </div>
@@ -213,7 +208,7 @@ const completed = () => {
       </div>
                 </div>
            </div>
-           <div class="flex flex-col xl:flex-row px-3 xl:px-10 mt-72 h-full md:mt-44 justify-between">
+           <div class="flex flex-col xl:flex-row px-3 xl:px-10 mt-60  h-full md:mt-44 justify-between">
                 <div class="xl:grid grid-flow-row xl:grid-flow-col ">
                     {#if isTaskForm}
                         <TaskForm closeTaskForm={closeTaskForm}/>
