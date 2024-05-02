@@ -12,6 +12,8 @@
   export let fetchUserTasks: () => void;
   export let markAsComplete: (task: any) => void;
   export let filteredTasks: any[]
+  export let showSearchBar:boolean
+  export let closeSearchBar:() => void
   let searchQuery: string = "";
   let showOptions: boolean = false
   let selectedTasks: any[] = []
@@ -154,7 +156,15 @@ afterUpdate(updateSelection);
     <label for="search-input"><i class="fa-solid fa-magnifying-glass border border-r px-3 py-3 rounded-l-full dark:bg-[#3f4146] dark:border-[#898c97]"></i></label>
     <input placeholder="Search ongoing tasks" id="search-input" class="border px-2 w-80 py-2 rounded-r-full dark:bg-[#3f4146] dark:border-[#898c97]" bind:value={searchQuery} on:input={searchTasks} />
   </div>
-  
+  <!-- mobile search btn -->
+  {#if showSearchBar}
+    <div class="fixed top-20  items-center right-0 left-0 px-3 flex justify-center w-full  md:hidden ">
+      <button on:click={() => closeSearchBar()}>
+        <i class="fa-solid fa-xmark border border-r px-3 py-3 rounded-l-full dark:bg-[#3f4146] dark:border-[#898c97]"></i>
+      </button>
+        <input placeholder="Search ongoing tasks" id="search-input" class="border px-2 w-full py-2 rounded-r-full dark:bg-[#3f4146] dark:border-[#898c97]" bind:value={searchQuery} on:input={searchTasks} />
+    </div>
+  {/if}
   <div class="px-7 xl:px-0">
     On Going
   </div>
@@ -236,9 +246,9 @@ afterUpdate(updateSelection);
 {/if}
 <!-- Table View -->
 {#if showTable}
-<div>
+<div style="max-height: 400px; overflow-y: auto;">
   <table class="w-4/5 border max-h-[400px] rounded-md border-collapse">
-    <thead>
+    <thead class=" bg-gray-200 dark:bg-gray-700">
       <tr class="bg-gray-200 dark:bg-gray-700">
         <!-- <th class="px-4 py-2 text-left">
           <input id="headerCheckbox" type="checkbox" 
@@ -254,7 +264,7 @@ afterUpdate(updateSelection);
         <th class="px-4 py-2 text-left">Actions</th>
       </tr>
     </thead>
-    <tbody>
+    <tbody class="overflow-y-scroll">
       {#each filteredTasks as task }
         <tr class="border-b  dark:border-gray-600">
           <!-- <td class="px-4 py-2">
@@ -273,8 +283,23 @@ afterUpdate(updateSelection);
               {/if}
             </span>
           </td>
-          <td class="px-7 py-2">{task.progress}%</td>
-          <td class="px-2 py-2">{task.createdAt.toDate().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</td>
+          <td class="px-4 py-2">
+            <select id="progress" class="border w-20  cursor-pointer px-1 py-1 rounded-md dark:bg-[#2A2D32]" bind:value={task.progress} on:change={() => updateProgress(task)}>
+              <option value="" selected disabled>Select Progress</option>
+              <option value="0">0%</option>
+              <option value="25">25%</option>
+              <option value="50">50%</option>
+              <option value="75">75%</option>
+              <option value="100">100%</option>
+              
+          </select>
+          <div class="flex gap-3 items-center text-sm mt-3 ">
+            <div class=" bg-gray border h-3 w-20 rounded-full">
+                <div class="bg-[#7864F4] h-2.5 rounded-full transition-all delay-150 duration-300 ease-in-out" style="width: {task.progress}%"></div>
+            </div>
+        </div>
+          </td>
+          <td class="px-4 py-2">{task.createdAt.toDate().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</td>
           <td class="px-4 py-2">
             {#each task.tags as tag}
               <span class="inline-block  bg-[#7864F4]   text-white px-2 py-1 text-xs font-semibold rounded-full mr-1">
@@ -283,9 +308,10 @@ afterUpdate(updateSelection);
             {/each}
           </td>
           <td class=" gap-2 text-left flex  py-4 px-4">
-            <button on:click={() => viewTask(task)} class="text-sm bg-gray-200 dark:bg-gray-700 dark:text-white px-2 py-1 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600"><i class="fa-solid fa-eye" title="view task"></i></button>
-            <button on:click={() => editTask(task)} class="text-sm bg-gray-200 dark:bg-gray-700 dark:text-white px-2 py-1 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600"><i class="fa-solid fa-edit" title="edit task"></i></button>
-            <button on:click={() => deleteTask(task)} class="text-sm bg-gray-200 dark:bg-gray-700 dark:text-white px-2 py-1 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600"><i class="fa-solid fa-trash" title="delete task"></i></button>
+            <button on:click={() => viewTask(task)} class="text-sm bg-gray-200 dark:bg-gray-700 dark:text-white px-2 py-1 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600"><i class="fa-solid px-1 fa-eye" title="view task"></i></button>
+            <button on:click={() => editTask(task)} class="text-sm bg-gray-200 dark:bg-gray-700 dark:text-white px-2 py-1 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600"><i class="fa-solid  px-1 fa-edit" title="edit task"></i></button>
+            <button on:click={() => markAsComplete(task)} class="text-sm bg-gray-200 dark:bg-gray-700 dark:text-white px-2 py-1 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600"><i class="fa-solid  px-1 text-lg fa-square-check"></i></button>
+            <button on:click={() => deleteTask(task)} class="text-sm bg-gray-200 dark:bg-gray-700 dark:text-white px-2 py-1 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600"><i class="fa-solid  px-1 fa-trash" title="delete task"></i></button>
           </td>
         </tr>
         <!-- {#if showOptions}

@@ -116,9 +116,9 @@
     </div>
     {/if}
   {#if showTable}
-  <div>
+  <div style="max-height: 300px; overflow-y: auto;">
     <table class="w-4/5 border max-h-[400px] rounded-md border-collapse">
-      <thead>
+      <thead class="top-0 bg-gray-200 dark:bg-gray-700 z-10">
         <tr class="bg-gray-200 dark:bg-gray-700">
           <!-- <th class="px-4 py-2 text-left">
             <input id="headerCheckbox" type="checkbox" 
@@ -132,7 +132,7 @@
           <th class="px-4 py-2 text-left">Actions</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody class="overflow-y-scroll">
         {#each completedTasks as task }
           <tr class="border-b  dark:border-gray-600">
             <!-- <td class="px-4 py-2">
@@ -140,8 +140,8 @@
             </td> -->
             <td class="px-4 py-2">{task.title}</td>
             <td class="px-4 py-2">{task.description.slice(0, 30)}...</td>
-            <td class="px-2 py-2">{task.createdAt.toDate().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</td>
-            <td class="px-2 py-2">{task.completedAt.toDate().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</td>
+            <td class="px-4 py-2">{task.createdAt.toDate().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</td>
+            <td class="px-4 py-2">{task.completedAt.toDate().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</td>
             <td class="px-4 py-2">
                 <div class="flex gap-4">
                     <button on:click={() => viewTask(task)} class="text-sm bg-gray-200 dark:bg-gray-700 dark:text-white px-2 py-1 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600"><i class="fa-solid fa-eye" title="view task"></i></button>

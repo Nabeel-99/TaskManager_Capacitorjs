@@ -12,7 +12,9 @@
     // This event will be handled in the parent component (layout.svelte)
     dispatch('toggleDarkMode');
   }
-   
+   const closeMenu = () => {
+        isBurgerMenu = false
+   }
 </script>
 
 <div class="flex ">
@@ -55,18 +57,22 @@
         </button>
         </div>
         {#if isBurgerMenu}
-            <div class="absolute top-20 right-10 bg-white shadow-lg border border-gray-100 p-3 rounded-lg py-4  w-56">
+            <div class="absolute top-20 right-10 bg-white dark:bg-[#1B1D21] shadow-lg border border-gray-100 p-3 rounded-lg py-4 dark:border-[#606267] dark:shadow-md  z-10 w-56">
                 <div class="flex flex-col gap-4 px-3">
                     <div class="flex gap-4 items-center" aria-current={$page.url.pathname.startsWith('/login') ? 'page' : undefined}>
                         <i class="fa-solid fa-user-large"></i>
-                        <a href="/login" class="hover:text-purple-800 hover:duration-150 text-md">Login</a>
+                        <a href="/login" on:click={closeMenu} class="hover:text-purple-800 hover:duration-150 text-md">Login</a>
                     </div>
                     <div class="flex gap-4 items-center" aria-current={$page.url.pathname.startsWith('/register') ? 'page' : undefined}>
                         <i class="fa-solid fa-user-large"></i>
-                        <a href="/register" class="hover:text-purple-800 hover:duration-150 text-md">Create Account</a>
+                        <a href="/register" on:click={closeMenu} class="hover:text-purple-800 hover:duration-150 text-md">Create Account</a>
                     </div>
                     <div>
-                        <button  class="text-md flex items-center gap-4">
+                        <button on:click={() => {
+                            toggleDarkMode() 
+                            closeMenu()
+                            }}  
+                            class="text-md flex items-center gap-4">
                             {#if darkMode}
                             <i class="fa-solid fa-sun"></i>
                              {:else}

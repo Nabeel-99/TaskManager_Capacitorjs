@@ -38,55 +38,60 @@ const applyDarkMode = () => {
 
 
 </script>
-<div class="flex flex-col h-screen w-screen fixed transition-all duration-200   md:static bg-white md:w-full dark:bg-[#1B1D21] dark:text-[#a6a7aa]">
-    <div class="text-4xl mt-8 ml-6 px-5 md:ml-1">
-        <button on:click={closeMenu}><i class="fa-solid fa-xmark"></i></button>
-</div>
-<div class="flex flex-col ml-7 md:ml-0 md:justify-between px-4  h-screen md:h-full">
-    <div class="flex flex-col mt-6">
-        <!-- USER NAME  -->
-        <div class="flex gap-3 pb-8">
-            <div class="flex gap-2 items-center md:w-44 text-xl md:text-base  px-3   rounded-md">
-                <i class="fa-solid fa-user-large"></i>
-               {displayName}
-            </div>
+<div class="flex flex-col h-screen  fixed  transition-all duration-200   bg-yellow-300   dark:bg-[#1B1D21] dark:text-white z-10">
+<div class="flex flex-col px-7 md:ml-0 justify-between bg-white w-72 xl:w-60 max-w-[100%] border-r dark:text-white dark:border-r-[#626366] h-full dark:bg-[#1B1D21]">
+    <div>
+        <div class="text-4xl mt-8  px-1 md:ml-1">
+            <button on:click={closeMenu}><i class="fa-solid fa-xmark"></i></button>
         </div>
-         <!-- MAIN MENU  -->
-        <div class="px-3 md:text-sm font-bold pb-2">MAIN MENU</div>
-        <div class="flex flex-col gap-3 pb-8 ">
-            <button class="flex gap-2 items-center md:w-44 text-xl md:text-base px-3 hover:bg-[#232529] rounded-md hover:text-white">
-                <i class="fa-solid fa-grip text-xl"></i>
-                Dashboard
-            </button>
-            <!-- <button on:click={displayCreateCard} class="flex gap-3 items-center justify-between md:w-44 text-xl md:text-base  px-3 hover:bg-[#232529] rounded-md hover:text-white">
-                <div class=" flex  items-center gap-2">
-                    <i class="fa-regular fa-clipboard text-xl"></i>
-                    Project
+        <div class="flex flex-col mt-6 dark:text-[#fefefe]">
+            <!-- USER NAME  -->
+            <div class="flex gap-3 pb-8 ">
+                <div class="flex gap-2 items-center md:w-44 text-xl md:text-base  px-3   rounded-md">
+                    <i class="fa-solid fa-user-large"></i>
+                   {displayName}
                 </div>
-                <button><i class="fa-regular fa-plus text-xl"></i></button>
-            </button> -->
-        </div>
-      <!-- TASK -->
-        <div class="px-3 md:text-sm font-bold pb-2">TASKS</div>
-        <div class="flex flex-col gap-2 ">
-            <p class="px-3 text-sm">Recently created tasks</p>
-            {#each taskTitles.slice(-3) as task }
-                <p class="px-4 text-[0.8rem] ">{task}</p>
-            {/each}
-        
-        </div>
-        <!-- PROJECT 
-        <div class="px-3 md:text-[0.7rem] font-bold pb-2">PROJECTS</div>
-        <div class="flex flex-col gap-2 justify-start">
-           {#if projectTitle.length > 0}
-            {#each projectTitle as title}
-                <button class="px-3  hover:bg-[#232529] rounded-md hover:text-white flex">{title.name}</button>
-            {/each}
-           {/if}
-           
-        </div> -->
-    </div> 
-    <div class="mt-20 md:mt-0">
+            </div>
+             <!-- MAIN MENU  -->
+            <div class="px-3 md:text-sm font-bold pb-2">MAIN MENU</div>
+            <div class="flex flex-col gap-3 pb-8 ">
+                <button class="flex gap-2 items-center md:w-44 text-xl md:text-base px-3 hover:bg-[#232529] rounded-md hover:text-white">
+                    <i class="fa-solid fa-grip text-xl"></i>
+                    Dashboard
+                </button>
+                <!-- <button on:click={displayCreateCard} class="flex gap-3 items-center justify-between md:w-44 text-xl md:text-base  px-3 hover:bg-[#232529] rounded-md hover:text-white">
+                    <div class=" flex  items-center gap-2">
+                        <i class="fa-regular fa-clipboard text-xl"></i>
+                        Project
+                    </div>
+                    <button><i class="fa-regular fa-plus text-xl"></i></button>
+                </button> -->
+            </div>
+          <!-- TASK -->
+            <div class="px-3 md:text-sm font-bold pb-2">TASKS</div>
+            <div class="flex flex-col gap-2 ">
+                <p class="px-3 text-sm">Recently created tasks</p>
+                {#each taskTitles.slice(-3) as task }
+                    <div class="px-3 text-sm font-semibold flex gap-2 items-center ">
+                        <i class="fa-solid fa-circle text-[0.4rem]"></i>
+                        {task}
+                    </div>
+                {/each}
+            
+            </div>
+            <!-- PROJECT 
+            <div class="px-3 md:text-[0.7rem] font-bold pb-2">PROJECTS</div>
+            <div class="flex flex-col gap-2 justify-start">
+               {#if projectTitle.length > 0}
+                {#each projectTitle as title}
+                    <button class="px-3  hover:bg-[#232529] rounded-md hover:text-white flex">{title.name}</button>
+                {/each}
+               {/if}
+               
+            </div> -->
+        </div> 
+    </div>
+    <div class="mb-44 md:mb-0">
         <div class="flex gap-3 pb-8 ">
             <button on:click={toggleDarkMode}  class="flex gap-2 items-center md:w-44 text-xl md:text-base  px-3 hover:bg-[#232529] rounded-md hover:text-white">
                 {#if darkMode}

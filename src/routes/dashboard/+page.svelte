@@ -164,7 +164,7 @@ const completed = () => {
 
 {#if !$authStore.loading}
     <div class="flex flex-col h-full w-full  transition-all duration-200  md:flex-row dark:bg-[#2A2D33] ">
-        <div class="text-black   md:w-20 flex flex-col md:items-center md:border-r-2  bg-white md:px-8 z-20 open dark:bg-[#1B1D21] dark:border-none" class:md:w-60={isOpen} >
+        <div class="text-black w-24 flex flex-col md:items-center md:border-r-2  bg-white md:px-8 z-20 open dark:bg-[#1B1D21] dark:border-none" class:w-60={isOpen}>
             <div class="hidden md:flex flex-col h-full justify-between fixed bg-white transition-all duration-200  dark:bg-[#1B1D21]">
                 <div class="text-2xl mt-8">
                     <button on:click={openMenu} class:hidden={isOpen}><i class="fa-solid fa-bars-staggered dark:text-white"></i></button>
@@ -176,12 +176,13 @@ const completed = () => {
             <!-- mobile  -->
             <div class="flex md:hidden fixed flex-col justify-between md:px-8 dark:bg-[#2A2D33]">
                 <div class="text-2xl mt-7 ml-4">
-                    <button on:click={openMenu} class:hidden={isOpen}  class="border rounded-md px-3 py-1"><i class="fa-solid fa-bars-staggered"></i></button>
+                    <button on:click={openMenu} class:hidden={isOpen}  class="border rounded-md dark:border-[#626366] px-3 py-1"><i class="fa-solid fa-bars-staggered dark:text-white"></i></button>
                 </div>
              </div>
              <!-- if menu is open -->   
             {#if isOpen}
-            <div class="flex flex-col absolute md:fixed bg-white transition-all duration-200  open dark:bg-[#1B1D21]">
+            <div class="flex flex-col  md:fixed top-0 left-0 right-0 bg-black transition-all duration-200  open dark:bg-[#1B1D21]">
+                <div class="absolute lg:hidden inset-0 top-0 left-0 right-0 w-full h-screen bg-gray-50 opacity-15"></div>
               <SideMenu
               taskTitles={taskTitles}
               fetchUserDetails={fetchUserDetails}
@@ -200,12 +201,12 @@ const completed = () => {
                    
                 </div>
                 <!-- TASK HEADER -->
-                <div class="flex justify-between items-center">
-                   <div class="flex gap-5">
-        <button on:click={alltask} class="{allTasks ? ' border-b-4 border-b-[#7864f4] transition-all duration-200 ease-in-out hover:text-[#553fe3]'  : ''}">All Tasks</button>
-        <button on:click={ongoing} class="{ongoingCard ? ' border-b-4 border-b-[#7864f4]  transition-all duration-200 ease-in-out hover:text-[#553fe3]' : ''}">On Going</button>
-        <button on:click={completed} class="{completedCard ? ' border-b-4 border-b-[#7864f4]  transition-all duration-200 ease-out hover:text-[#553fe3]' : ''}">Completed</button>
-      </div>
+                <div class="flex md:justify-between justify-center  items-center">
+                   <div class="flex md:gap-5 gap-10 justify-center">
+                       <button on:click={alltask} class="{allTasks ? ' border-b-4 border-b-[#7864f4] transition-all duration-200 ease-in-out hover:text-[#553fe3]'  : ''}">All Tasks</button>
+                       <button on:click={ongoing} class="{ongoingCard ? ' border-b-4 border-b-[#7864f4]  transition-all duration-200 ease-in-out hover:text-[#553fe3]' : ''}">On Going</button>
+                       <button on:click={completed} class="{completedCard ? ' border-b-4 border-b-[#7864f4]  transition-all duration-200 ease-out hover:text-[#553fe3]' : ''}">Completed</button>
+                    </div>
                 </div>
            </div>
            <div class="flex flex-col xl:flex-row px-3 xl:px-10 mt-60  h-full md:mt-44 justify-between">

@@ -24,10 +24,9 @@ let searchTerm: string = ''
 let filteredTasks: any[] = []
 let showCards: boolean = true
 let showTable: boolean = false
+let showMobileBtn:boolean = false
+let showSearchBar:boolean = false
 
-
-
- 
 const fetchUserTasks = async () => {
         const user = auth.currentUser;
         if(user){
@@ -97,6 +96,7 @@ const sortByProgress = () => {
     }
     filteredTasks = [...filteredTasks]
     console.log(`sorted tasks:`, filteredTasks)
+    showMobileBtn = false
     
 }
 
@@ -105,6 +105,7 @@ const showCardView = () => {
     showTable = false
     localStorage.setItem('view', 'cards')
     console.log("cards clicked")
+    showMobileBtn = false
 }
 
 const showTableView = () => {
@@ -112,8 +113,18 @@ const showTableView = () => {
     showCards = false
     localStorage.setItem('view', 'table')
     console.log("table clicked")
+    showMobileBtn = false
+}
+const displayMobileBtns = () => {
+    showMobileBtn = !showMobileBtn
 }
 
+const displaySearchBtn = () => {
+    showSearchBar = true
+}
+const closeSearchBar = () => {
+    showSearchBar = false
+}
 onMount(() => {
    const preferredView = localStorage.getItem('view')
    if(preferredView == 'table'){
@@ -131,6 +142,8 @@ onMount(() => {
         <div class="overflow-y-scroll" class:hidden={showEditTaskForm || showViewTask}>
            {#if ongoingCard}
            <OnGoingTask
+           showSearchBar={showSearchBar}
+           closeSearchBar={closeSearchBar}
            showCards={showCards}
            showTable={showTable}
            markAsComplete={markAsComplete}
@@ -172,20 +185,64 @@ onMount(() => {
       
         {/if}
 <!-- sort btn -->
-        <div class="flex gap-8">
-            <div class="">
-                <button class="fixed md:right-[2%] top-36  md:top-24 right-0 border px-2 py-1 mr-10 text-xl rounded-lg hover:bg-[#232529] hover:text-white dark:bg-[#626366] dark:border-none" on:click={sortByProgress} title="sort by progress" ><i class="fa-solid fa-arrow-down-wide-short"></i></button>
-            </div>
-            <div class="">
-                <button class="fixed md:right-[6%] top-36  md:top-24 right-0 border px-2 py-1 mr-10 text-xl rounded-lg hover:bg-[#232529] hover:text-white dark:bg-[#626366] dark:border-none" on:click={showTableView} title="table view" ><i class="fa-solid fa-table-list"></i></button>
-            </div>
+        <div class="hidden md:block">
+            <button 
+                class="fixed md:right-[2%] top-36  md:top-24 right-0 border px-2 py-1 mr-11 text-xl rounded-lg hover:bg-[#232529] hover:text-white dark:bg-[#626366] dark:border-none" 
+                on:click={sortByProgress} 
+                title="sort by progress" >
+                <i class="fa-solid fa-arrow-down-wide-short"></i>
+            </button>
         </div>
-        <div class="">
-            <button class="fixed md:right-[10%] top-36  md:top-24 right-0 border px-3 py-1 mr-10 text-xl rounded-lg hover:bg-[#232529] hover:text-white dark:bg-[#626366] dark:border-none" on:click={showCardView} title="card view" ><i class="fa-solid fa-grip-vertical"></i></button>
+        <div class="hidden md:block">
+            <button 
+                class="fixed md:right-[6%] top-36  md:top-24 right-0 border px-2 py-1 mr-16 text-xl rounded-lg hover:bg-[#232529] hover:text-white dark:bg-[#626366] dark:border-none" 
+                on:click={showTableView} 
+                title="table view" >
+                <i class="fa-solid fa-table-list"></i>
+            </button>
         </div>
-        
-    </div>
-
+        <div class="hidden md:block">
+            <button 
+                class="fixed md:right-[10%] top-36  md:top-24 right-0 border px-3 py-1 mr-20 text-xl rounded-lg hover:bg-[#232529] hover:text-white dark:bg-[#626366] dark:border-none" 
+                on:click={showCardView} 
+                title="card view" >
+                <i class="fa-solid fa-grip-vertical"></i>
+            </button>
+        </div>
+        <!-- mobile menu btns -->
+        <div>
+            <button 
+                class:hidden={showSearchBar}
+                on:click={displayMobileBtns} 
+                class="fixed top-6 md:hidden -right-4 border px-3 py-2 mr-10 text-xl rounded-full  hover:bg-[#232529]  dark:bg-[#626366] dark:border-none">
+                <i class="fa-solid fa-ellipsis "></i>
+            </button>
+            <button 
+                class:hidden={showSearchBar}
+                on:click={displaySearchBtn} 
+                class="fixed top-6 md:hidden right-10 border px-3 py-2 mr-10 text-xl rounded-full  hover:bg-[#232529]  dark:bg-[#626366] dark:border-none">
+                <i class="fa-solid fa-magnifying-glass "></i>
+            </button>
+        </div>
+        {#if showMobileBtn}
+            <div class="absolute top-24 right-8 w-56 bg-white border p-2 shadow-md dark:bg-[#1B1D21] dark:border-none  rounded-md z-10">
+                <div class="flex flex-col gap-6 items-start justify-center px-3 py-4">
+                    <button on:click={showCardView} class="text-md flex items-center gap-2  hover:bg-[#232529] hover:text-white  dark:border-none">
+                        <i class="fa-solid fa-grip-vertical px-[0.2rem]"></i>
+                        <p class="px-2">Card View</p>
+                    </button>
+                    <button on:click={showTableView} class="text-md flex items-center gap-2  hover:bg-[#232529] hover:text-white  dark:border-none ">
+                        <i class="fa-solid fa-table-list"></i>
+                        <p class="px-2">Table View</p>
+                    </button>
+                    <button on:click={sortByProgress} class="text-md flex items-center gap-2  hover:bg-[#232529] hover:text-white  dark:border-none">
+                        <i class="fa-solid fa-arrow-down-wide-short"></i>
+                        <p class="px-2">Sort By Progress</p>
+                    </button>
+                </div>
+            </div>
+        {/if} 
+</div>
 <style>
     /* your styles go here */
 </style>
