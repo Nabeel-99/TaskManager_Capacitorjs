@@ -72,9 +72,9 @@
                             toggleDarkMode() 
                             closeMenu()
                             }}  
-                            class="text-md flex items-center gap-4">
+                            class="text-md flex items-center gap-4 hover:border hover:rounded-full hover:bg-slate-400">
                             {#if darkMode}
-                            <i class="fa-solid fa-sun"></i>
+                            <i class="fa-solid fa-sun hover:border hover:rounded-full hover:bg-slate-400"></i>
                              {:else}
                              <i class="fa-solid fa-moon"></i>
                             {/if }

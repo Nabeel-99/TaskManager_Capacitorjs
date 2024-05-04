@@ -2,6 +2,7 @@
   import { auth, db } from "$lib/firebase/firebase";
   import { arrayRemove, collection, doc, getDocs, query, updateDoc, where } from "firebase/firestore";
   import { onMount } from "svelte";
+  import { fade } from "svelte/transition";
    export let showCards:boolean
    export let showTable:boolean
    export let viewTask:(task: any) => void
@@ -55,7 +56,7 @@
     })
 </script>
 
-<div class="flex flex-col gap-2">
+<div transition:fade="{{duration: 300}}" class="flex flex-col gap-2">
     <div class="px-7 xl:px-0">
         Completed
     </div>

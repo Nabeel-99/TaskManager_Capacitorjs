@@ -3,7 +3,7 @@
   import { doc, updateDoc } from "firebase/firestore";
   import { afterUpdate, onMount } from "svelte";
   import EditTaskForm from "./EditTaskForm.svelte";
-
+  import { fade, slide } from "svelte/transition";
   export let viewTask: (task: any) => void
   export let editTask: (task: any) => void
   export let userTasks: any[]
@@ -150,7 +150,7 @@ afterUpdate(updateSelection);
   $: searchTasks();
 </script>
 
-<div class=" flex flex-col gap-2 ">
+<div transition:fade="{{duration: 300}}" class=" flex flex-col gap-2 ">
   <!-- search btn -->
   <div class="hidden md:flex items-center md:fixed right-10 top-5 justify-center">
     <label for="search-input"><i class="fa-solid fa-magnifying-glass border border-r px-3 py-3 rounded-l-full dark:bg-[#3f4146] dark:border-[#898c97]"></i></label>
@@ -308,10 +308,10 @@ afterUpdate(updateSelection);
             {/each}
           </td>
           <td class=" gap-2 text-left flex  py-4 px-4">
-            <button on:click={() => viewTask(task)} class="text-sm bg-gray-200 dark:bg-gray-700 dark:text-white px-2 py-1 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600"><i class="fa-solid px-1 fa-eye" title="view task"></i></button>
-            <button on:click={() => editTask(task)} class="text-sm bg-gray-200 dark:bg-gray-700 dark:text-white px-2 py-1 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600"><i class="fa-solid  px-1 fa-edit" title="edit task"></i></button>
-            <button on:click={() => markAsComplete(task)} class="text-sm bg-gray-200 dark:bg-gray-700 dark:text-white px-2 py-1 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600"><i class="fa-solid  px-1 text-lg fa-square-check"></i></button>
-            <button on:click={() => deleteTask(task)} class="text-sm bg-gray-200 dark:bg-gray-700 dark:text-white px-2 py-1 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600"><i class="fa-solid  px-1 fa-trash" title="delete task"></i></button>
+            <button title="view task" on:click={() => viewTask(task)} class="text-sm bg-gray-200 dark:bg-gray-700 dark:text-white px-2 py-1 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600"><i class="fa-solid px-1 fa-eye"></i></button>
+            <button title="edit task" on:click={() => editTask(task)} class="text-sm bg-gray-200 dark:bg-gray-700 dark:text-white px-2 py-1 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600"><i class="fa-solid  px-1 fa-edit" ></i></button>
+            <button title="mark as complete" on:click={() => markAsComplete(task)} class="text-sm bg-gray-200 dark:bg-gray-700 dark:text-white px-2 py-1 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600"><i class="fa-solid  px-1 text-lg fa-square-check" ></i></button>
+            <button title="delete task" on:click={() => deleteTask(task)} class="text-sm bg-gray-200 dark:bg-gray-700 dark:text-white px-2 py-1 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600"><i class="fa-solid  px-1 fa-trash" ></i></button>
           </td>
         </tr>
         <!-- {#if showOptions}

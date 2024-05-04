@@ -78,7 +78,7 @@
 
 </script>
 
-<div class="app dark:bg-[#232529] transition-all  dark:text-white">
+<div class="app dark:bg-[#232529]  dark:text-white">
 	{#if showNav}
 		<Navbar on:toggleDarkMode={toggleDarkMode} darkMode={darkMode}/> 
 	{/if}

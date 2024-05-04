@@ -10,6 +10,8 @@
   import { auth, db } from "$lib/firebase/firebase";
   import ViewTask from "../../components/ViewTask.svelte";
 
+  import Dashboard from "../../components/Dashboard.svelte";
+
 
 
   let isOpen: boolean = false
@@ -23,6 +25,11 @@
   let showDisplayCard: boolean = false
   let taskTitles: any[] = []
   let projectName: string = ''
+  let completedCount: number = 0
+  let inProgressCount: number = 0
+  let ongoingTasks: any[] = []
+  let doneTasks: any[] = []
+  let showDashboard:boolean = false
 
   const displayCreateCard = () => {
     showDisplayCard = true
@@ -40,15 +47,22 @@ const fetchUserDetails = async () => {
             if(docSnap.exists()) {
                 const userData = docSnap.data();
                 const tasks = docSnap.data().tasks || []
+                const completedTasks = docSnap.data().completedTasks || []
                 displayName = userData.displayName
                 if(tasks.length > 0) {
                     taskTitles = tasks.map((task:any) => task.title)
                 }else{
                     taskTitles = ["No tasks added yet"];
                 }
-              
+                completedCount = completedTasks.length
+                inProgressCount = tasks.length
+                ongoingTasks = tasks
+                doneTasks = completedTasks
+                
         }
         console.log(`task titles: `, taskTitles)
+        console.log("completed", completedCount)
+        console.log(ongoingTasks)
        
     }
 }
@@ -157,15 +171,28 @@ const completed = () => {
 
 }
 
+const progressColor = (task: any) => {
+    if (task.progress === 25) {
+        return "red";
+    } else if (task.progress === 50) {
+        return "yellow";
+    } else if (task.progress === 75) {
+        return "green";
+    } else if (task.progress === 100) {
+        return "blue";
+    }
+};
 
-
+const displayDashboard = () => {
+    showDashboard = true
+}
 
 </script>
 
 {#if !$authStore.loading}
-    <div class="flex flex-col h-full w-full  transition-all duration-200  md:flex-row dark:bg-[#2A2D33] ">
-        <div class="text-black w-24 flex flex-col md:items-center md:border-r-2  bg-white md:px-8 z-20 open dark:bg-[#1B1D21] dark:border-none" class:w-60={isOpen}>
-            <div class="hidden md:flex flex-col h-full justify-between fixed bg-white transition-all duration-200  dark:bg-[#1B1D21]">
+    <div class="flex flex-col h-full w-full   md:flex-row dark:bg-[#2A2D33] ">
+        <div transition:slide="{{duration: 300}}" class="text-black w-24 flex flex-col md:items-center md:border-r-2  bg-white md:px-8 z-20  dark:bg-[#1B1D21] dark:border-none" class:w-72={isOpen}>
+            <div class="hidden md:flex flex-col h-full justify-between fixed bg-white dark:bg-[#1B1D21]">
                 <div class="text-2xl mt-8">
                     <button on:click={openMenu} class:hidden={isOpen}><i class="fa-solid fa-bars-staggered dark:text-white"></i></button>
                 </div>
@@ -181,56 +208,68 @@ const completed = () => {
              </div>
              <!-- if menu is open -->   
             {#if isOpen}
-            <div class="flex flex-col  md:fixed top-0 left-0 right-0 bg-black transition-all duration-200  open dark:bg-[#1B1D21]">
-                <div class="absolute lg:hidden inset-0 top-0 left-0 right-0 w-full h-screen bg-gray-50 opacity-15"></div>
+            <div class="flex flex-col  md:fixed top-0 left-0 right-0 bg-black  dark:bg-[#1B1D21]">
+                <div class="absolute lg:hidden inset-0 top-0 left-0 right-0 w-full h-screen bg-gray-900 dark:bg-gray-50 opacity-20"></div>
               <SideMenu
+              completedCount={completedCount}
+              inProgressCount={inProgressCount}
               taskTitles={taskTitles}
               fetchUserDetails={fetchUserDetails}
               displayName={displayName}
+              displayDashboard={displayDashboard}
               closeMenu={closeMenu}/>
             </div> 
             {/if}
         </div>
-        <div class="bg-white w-full  h-full flex flex-col gap-4 transition-all duration-200  dark:bg-[#2A2D33]">
-            <!-- PROJECT NAME AND SEARCH BAR  -->
-            <div class="flex flex-col gap-8 bg-white  border rounded-b-lg shadow-md w-full fixed pt-20  md:pt-7 justify-between  px-10 pb-4 dark:bg-[#2A2D33] dark:border-none">
-                <div class="flex flex-col gap-5 bg-white  md:flex-row justify-between items-center border-b pb-3 w-full dark:bg-[#2A2D33] dark:border-b-[#464b51]">
-                    <div>
-                        <h2 class="text-2xl font-bold">My Tasks</h2>
-                    </div> 
-                   
-                </div>
-                <!-- TASK HEADER -->
-                <div class="flex md:justify-between justify-center  items-center">
-                   <div class="flex md:gap-5 gap-10 justify-center">
-                       <button on:click={alltask} class="{allTasks ? ' border-b-4 border-b-[#7864f4] transition-all duration-200 ease-in-out hover:text-[#553fe3]'  : ''}">All Tasks</button>
-                       <button on:click={ongoing} class="{ongoingCard ? ' border-b-4 border-b-[#7864f4]  transition-all duration-200 ease-in-out hover:text-[#553fe3]' : ''}">On Going</button>
-                       <button on:click={completed} class="{completedCard ? ' border-b-4 border-b-[#7864f4]  transition-all duration-200 ease-out hover:text-[#553fe3]' : ''}">Completed</button>
-                    </div>
-                </div>
-           </div>
-           <div class="flex flex-col xl:flex-row px-3 xl:px-10 mt-60  h-full md:mt-44 justify-between">
-                <div class="xl:grid grid-flow-row xl:grid-flow-col ">
-                    {#if isTaskForm}
-                        <TaskForm closeTaskForm={closeTaskForm}/>
-                      {:else}
-                      <AllTask 
-                        alltaskCard={allTasks}
-                        ongoingCard={ongoingCard}
-                        completedCard={completedCard}
-                        showEditForm={showEditForm}  
-                        isOpen={isOpen} 
-                        closeEditForm={closeEditTaskForm} />
-                     
-                    {/if}
-                </div>
-                <div class="flex flex-col items-center xl:fixed right-50 left-50 xl:right-10 xl:top-60 gap-5 md:mr-10 mb-8 xl:mb-0">
-                    <i class="fa-solid fa-clipboard-list text-[12rem] text-slate-800 dark:text-[#838792]"></i>
-                    <button on:click={showTaskForm} class="py-2 px-6 rounded-md bg-[#2A2D33] hover:bg-[#4d4d4f] text-white dark:bg-[#7864F4] dark:text-white dark:hover:bg-[#5947cb]">Add Task</button>
-                </div>
-           </div>
-        </div>
-           
+        {#if showDashboard}
+            <Dashboard
+              ongoingTasks={ongoingTasks}
+              doneTasks={doneTasks}
+              showTaskForm={showTaskForm}
+              isOpen={isOpen}
+            />
+            {:else}
+            <div class="bg-white w-full  h-full flex flex-col gap-4  dark:bg-[#2A2D33]">
+                PROJECT NAME AND SEARCH BAR  
+               <div class="flex flex-col gap-8 bg-white  border rounded-b-lg shadow-md w-full fixed pt-20  md:pt-7 justify-between  px-10 pb-4 dark:bg-[#2A2D33] dark:border-none">
+                   <div class="flex flex-col gap-5 bg-white  md:flex-row justify-between items-center border-b pb-3 w-full dark:bg-[#2A2D33] dark:border-b-[#464b51]">
+                       <div>
+                           <h2 class="text-2xl font-bold">My Tasks</h2>
+                       </div> 
+                      
+                   </div>
+                   <div class="flex md:justify-between justify-center  items-center">
+                      <div class="flex md:gap-5 gap-10 justify-center">
+                          <button on:click={alltask} class="{allTasks ? ' border-b-4 border-b-[#7864f4] transition-all duration-200 ease-in-out hover:text-[#553fe3]'  : ''}">All Tasks</button>
+                          <button on:click={ongoing} class="{ongoingCard ? ' border-b-4 border-b-[#7864f4]  transition-all duration-200 ease-in-out hover:text-[#553fe3]' : ''}">On Going</button>
+                          <button on:click={completed} class="{completedCard ? ' border-b-4 border-b-[#7864f4]  transition-all duration-200 ease-out hover:text-[#553fe3]' : ''}">Completed</button>
+                       </div>
+                   </div>
+              </div>
+              <div class="flex flex-col xl:flex-row px-3 xl:px-10 mt-60  h-full md:mt-44 justify-between">
+                   <div class="xl:grid grid-flow-row xl:grid-flow-col ">
+                       {#if isTaskForm}
+                           <TaskForm closeTaskForm={closeTaskForm}/>
+                         {:else}
+                         <AllTask 
+                           alltaskCard={allTasks}
+                           ongoingCard={ongoingCard}
+                           completedCard={completedCard}
+                           showEditForm={showEditForm}  
+                           isOpen={isOpen} 
+                           closeEditForm={closeEditTaskForm} />
+                        
+                       {/if}
+                   </div>
+                   <div class="flex flex-col items-center xl:fixed right-50 left-50 xl:right-10 xl:top-60 gap-5 md:mr-10 mb-8 xl:mb-0">
+                       <i class="fa-solid fa-clipboard-list text-[12rem] text-slate-800 dark:text-[#838792]"></i>
+                       <button on:click={showTaskForm} class="py-2 px-6 rounded-md bg-[#2A2D33] hover:bg-[#4d4d4f] text-white dark:bg-[#7864F4] dark:text-white dark:hover:bg-[#5947cb]">Add Task</button>
+                   </div>
+              </div>
+           </div> 
+        {/if}
+        
+       
     </div>
 
 {:else}
@@ -239,7 +278,44 @@ const completed = () => {
 
 
 <style>
-   .open{
+   /* circle{
+     animation: 2s linear forwards;
+   } */
+   /* @keyframes anim {
+     100% {
+        stroke-dashoffset: 0;
+     }
+   } */
+   @keyframes progressAnimation {
+    from {
+      stroke-dashoffset: 472; /* Initial dash offset */
+    }
+    
+  }
+  /* .thebg{
+    background-color: yellow;
+    animation: colors 10s infinite linear forwards;
+  }
+  
+   @keyframes colors{
+    0% {
+        background-position: 0% 50%;
+        background-color: aquamarine;
+    }
+    50% {
+        background-position: 100% 50%;
+        background-color: bisque;
+    }
+    100% {
+        background-position: 0% 50%;
+        background-color: lightblue;
+    }
+   } */
+  /* Apply animation to the circle element */
+  .progress-circle {
+    animation: progressAnimation 2s linear forwards;
+  }
+   .openMenu{
         transition-duration: 300ms;
    }
    .spin{

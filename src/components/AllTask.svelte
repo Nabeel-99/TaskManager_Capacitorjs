@@ -8,6 +8,7 @@ import dashImage from "$lib/dashImage.jpeg"
   import { auth, db } from "$lib/firebase/firebase";
   import { arrayRemove, arrayUnion, collection, doc, getDocs, query, updateDoc, where } from "firebase/firestore";
   import { onMount } from "svelte";
+  import { fade } from "svelte/transition";
 export let closeEditForm: () => void
 export let showEditForm: () => void
 export let isOpen: boolean
@@ -138,7 +139,7 @@ onMount(() => {
 // })
 
 </script>
-   <div class="flex flex-col  gap-8 xl:flex-row  xl:h-[100vh] {showTable ? 'xl:flex-col gap-20' : ''}">
+   <div   class="flex flex-col  gap-8 xl:flex-row  xl:h-[100vh] {showTable ? 'xl:flex-col gap-20' : ''}">
         <div class="overflow-y-scroll" class:hidden={showEditTaskForm || showViewTask}>
            {#if ongoingCard}
            <OnGoingTask
