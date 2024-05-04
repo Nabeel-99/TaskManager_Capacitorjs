@@ -15,15 +15,8 @@
   export let showSearchBar:boolean
   export let closeSearchBar:() => void
   let searchQuery: string = "";
-  let showOptions: boolean = false
-  let selectedTasks: any[] = []
-  // let filteredTasks: any[] = userTasks;
-  const displayOptions = () => {
-    showOptions = !showOptions
-  }
-  const closeDisplay = () => {
-    showOptions = false
-  }
+
+
   const deleteTask = async (task: any) => {
     try {
         const user = auth.currentUser;
@@ -43,82 +36,6 @@
         console.log("Error deleting task", error);
     }
   }
-// Function to update the selected tasks and header checkbox
-const updateSelection = () => {
-    const headerCheckbox = document.getElementById('headerCheckbox') as HTMLInputElement;
-    if (headerCheckbox) {
-        headerCheckbox.checked = selectedTasks.length === filteredTasks.length;
-    }
-};
-
-const selectAll = (event: Event) => {
-    const isChecked = (event.target as HTMLInputElement).checked;
-
-    // Update the isChecked property of each task
-    filteredTasks.forEach(task => {
-        task.isChecked = isChecked;
-    });
-
-    // Update the selectedTasks array based on the checked status
-    if (isChecked) {
-        selectedTasks = [...filteredTasks]; // Select all tasks
-    } else {
-        selectedTasks = []; // Deselect all tasks
-    }
-
-    console.log(selectedTasks);
-};
-
-// After each update, ensure the header checkbox is updated
-afterUpdate(updateSelection);
-
-
-
-  const deleteSelected = async () => {
-    try {
-        // Delete selected tasks
-        const user = auth.currentUser;
-        if (!user) {
-            console.log("User is not authenticated");
-            return;
-        }
-        const userDocRef = doc(db, `users/${user.uid}`);
-        const updatedTasks = userTasks.filter(task => !selectedTasks.includes(task));
-        await updateDoc(userDocRef, { tasks: updatedTasks });
-
-        // Clear the selected tasks
-        selectedTasks = [];
-    } catch (error) {
-        console.log("Error deleting tasks: ", error);
-    }
-};
-
-  const markSelectedAsComplete = async () => {
-    try {
-        // Mark selected tasks as complete
-        const user = auth.currentUser;
-        if (!user) {
-            console.log("User is not authenticated");
-            return;
-        }
-        const userDocRef = doc(db, `users/${user.uid}`);
-        const updatedTasks = userTasks.map(task => {
-            if (selectedTasks.includes(task)) {
-                return { ...task, isCompleted: true };
-            }
-            return task;
-        });
-        await updateDoc(userDocRef, { tasks: updatedTasks });
-
-        // Clear the selected tasks
-        selectedTasks = [];
-    } catch (error) {
-        console.log("Error marking tasks as complete: ", error);
-    }
-};
-
-
-
   const updateProgress = async(task: any) => {
     try {
         const user = auth.currentUser;
@@ -144,7 +61,7 @@ afterUpdate(updateSelection);
   }
 
   onMount(() => {
-    fetchUserTasks();
+      fetchUserTasks();
     // filteredTasks = [...userTasks]; 
   });
   $: searchTasks();
@@ -170,7 +87,7 @@ afterUpdate(updateSelection);
   </div>
 <!-- Cards view -->
 {#if showCards}
-<div class="grid grid-flow-col xl:grid-rows-1 xl:grid-flow-row gap-8 overflow-y-scroll">
+<div class="grid grid-flow-col xl:grid-rows-1 xl:grid-flow-row gap-8 pb-10 overflow-y-scroll">
   {#if filteredTasks.length === 0 && searchQuery !== ""}
   <div>NO MATCHING TASKS FOUND.</div>
     {:else if filteredTasks.length == 0}

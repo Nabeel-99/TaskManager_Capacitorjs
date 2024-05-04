@@ -99,7 +99,7 @@
                        <div class="flex gap-4 border p-3 rounded-md">
                             {catItem}
                             <div>
-                                <button on:click={() => removetags(catItem)} class="text-black dark:text-white" ><i class="fa fa-xmark"></i></button>
+                                <button on:click={() => removetags(catItem)} class="text-black dark:text-white" ><i class="fa fa-xmark dark:text-white"></i></button>
                             </div>
                         </div> 
                    {/each}

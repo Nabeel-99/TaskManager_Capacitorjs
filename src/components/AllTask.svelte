@@ -35,6 +35,7 @@ const fetchUserTasks = async () => {
             const querySnapshot = await getDocs(q)
             querySnapshot.forEach((doc) => {
                 userTasks = doc.data().tasks || []
+                completedTasks = doc.data().completedTasks || []
                 filteredTasks = userTasks
             })
             console.log(userTasks)
@@ -53,7 +54,6 @@ const markAsComplete = async (task: any) => {
         task.completedAt = completedAt
 
         const updatedTasks = userTasks.filter(t => t !== task)
-    
 
         const userDocRef = doc(db, `users/${user.uid}`)
         await updateDoc(userDocRef, {
@@ -61,7 +61,7 @@ const markAsComplete = async (task: any) => {
             completedTasks: arrayUnion(task)
         })
         userTasks = updatedTasks
-        window.location.reload()
+        completedTasks = [...completedTasks]
         console.log("Task marked as complete:", task)
     } catch (error) {
         console.log("error marking as complete", error)
@@ -78,6 +78,7 @@ const editTask = (task: any) => {
     console.log("task details: ", task)
     showEditTaskForm = true
     taskDetails = task
+
 }
 
 const closeForm = () => {
@@ -169,7 +170,9 @@ onMount(() => {
         <div class="overflow-y-scroll" class:hidden={showViewTask || showEditTaskForm}>
           {#if completedCard}
              <CompletedTask
-             viewTask={viewTask}  
+             completedTasks={completedTasks}
+             viewTask={viewTask}
+             fetchUserTasks={fetchUserTasks}  
              showCards={showCards}
              showTable={showTable}/>
           {/if}

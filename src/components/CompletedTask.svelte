@@ -6,7 +6,8 @@
    export let showCards:boolean
    export let showTable:boolean
    export let viewTask:(task: any) => void
-   let completedTasks: any[] = []
+   export let completedTasks:any[]
+   export let fetchUserTasks:() => void
    let showModal: boolean = false
    let isShowOptions: boolean = false
    const showOptions = (task:any) => {
@@ -18,17 +19,17 @@
     const closeModal = () => {
         showModal = false
     }
-  const fetchCompletedTasks = async () => {
-        const user = auth.currentUser;
-        if(user){
-            const q = query(collection(db, "users"), where("email", "==", user.email))
-            const querySnapshot = await getDocs(q)
-            querySnapshot.forEach((doc) => {
-                completedTasks = doc.data().completedTasks || []
-            })
-            console.log(completedTasks)
-        }
-    }
+  // const fetchCompletedTasks = async () => {
+  //       const user = auth.currentUser;
+  //       if(user){
+  //           const q = query(collection(db, "users"), where("email", "==", user.email))
+  //           const querySnapshot = await getDocs(q)
+  //           querySnapshot.forEach((doc) => {
+  //               completedTasks = doc.data().completedTasks || []
+  //           })
+  //           console.log(completedTasks)
+  //       }
+  //   }
 
     const removeTask = async (task: any) => {
     try {
@@ -52,7 +53,7 @@
     
 
     onMount(() => {
-        fetchCompletedTasks()
+        fetchUserTasks()
     })
 </script>
 
@@ -61,7 +62,7 @@
         Completed
     </div>
     {#if showCards}
-    <div class="grid grid-flow-col xl:grid-rows-1 xl:grid-flow-row gap-6 overflow-scroll">
+    <div class="grid grid-flow-col xl:grid-rows-1 xl:grid-flow-row gap-6 overflow-scroll  pb-10 ">
         {#if completedTasks.length === 0}
              <div>NO COMPLETED TASKS YET.</div>
          {/if}  

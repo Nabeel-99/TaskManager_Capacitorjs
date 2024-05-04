@@ -24,12 +24,12 @@
   let displayName: string
   let showDisplayCard: boolean = false
   let taskTitles: any[] = []
-  let projectName: string = ''
   let completedCount: number = 0
   let inProgressCount: number = 0
   let ongoingTasks: any[] = []
   let doneTasks: any[] = []
-  let showDashboard:boolean = false
+  let showDashboard:boolean = true
+  let showOtherView:boolean = false
 
   const displayCreateCard = () => {
     showDisplayCard = true
@@ -57,6 +57,7 @@ const fetchUserDetails = async () => {
                 completedCount = completedTasks.length
                 inProgressCount = tasks.length
                 ongoingTasks = tasks
+                userTasks = tasks
                 doneTasks = completedTasks
                 
         }
@@ -71,41 +72,6 @@ onMount(() => {
     fetchUserDetails()
 })
 
-const createProject = async() => {
-    if(!projectName){
-        console.log("Field is required")
-        return
-    }
-    const user = auth.currentUser
-    if(!user){
-        console.log("user is not authenticated")
-        return
-    }
-    try {
-        const userDocRef = doc(db, `users/${user.uid}`)
-        const docSnap = await getDoc(userDocRef);
-        if (docSnap.exists()) {
-            const userData = docSnap.data();
-            const existingProjects = userData.projects || [];
-            const defaultTask = { title: "Default Task", progress: 0, description: "Description of the default task" };
-            const newProject = {
-                name: projectName,
-                tasks: [defaultTask],
-                completedTasks: []
-            };
-            // Combine existing projects with the new one
-            const updatedProjects = [...existingProjects, newProject];
-            // Update the Firestore document with the updated projects array
-            await updateDoc(userDocRef, { projects: updatedProjects });
-            console.log("Project created successfully");
-            closeDisplayCard();
-        } else {
-            console.log("User document does not exist");
-        }
-    } catch (error) {
-        console.error("Error creating project:", error);
-    }
-}
 
   function openMenu(){
     isOpen = !isOpen
@@ -119,25 +85,12 @@ const createProject = async() => {
     isOpen = false
     localStorage.getItem('darkMode')
   })
-  const fetchUserTasks = async () => {
-        const user = auth.currentUser;
-        if(user){
-            const q = query(collection(db, "users"), where("email", "==", user.email))
-            const querySnapshot = await getDocs(q)
-            querySnapshot.forEach((doc) => {
-                userTasks = doc.data().projects
-            })
-            console.log(`user tasks:`, userTasks)
-        }
-    }
-  onMount(async () => {
-    console.log("dashboard rendered")
-    await fetchUserTasks()
-  })
 
 //   show task form on btn click
 const showTaskForm = () => {
     isTaskForm = true;
+    showDashboard = false
+    showOtherView = true
 
 }
 const closeTaskForm = () => {
@@ -155,12 +108,14 @@ const alltask = () => {
     allTasks = true
     ongoingCard = true
     completedCard = true
+    isTaskForm = false
 }
 
 const ongoing = () => {
     allTasks = false
     ongoingCard = true
     completedCard = false
+    isTaskForm = false
 
 }
 
@@ -168,6 +123,7 @@ const completed = () => {
     allTasks = false
     ongoingCard = false
     completedCard = true
+    isTaskForm = false
 
 }
 
@@ -185,8 +141,15 @@ const progressColor = (task: any) => {
 
 const displayDashboard = () => {
     showDashboard = true
+    isOpen = false
 }
 
+const viewTask = () => {
+    showOtherView = true
+    showDashboard = false
+
+
+}
 </script>
 
 {#if !$authStore.loading}
@@ -201,19 +164,20 @@ const displayDashboard = () => {
                 </div>   
             </div>
             <!-- mobile  -->
-            <div class="flex md:hidden fixed flex-col justify-between md:px-8 dark:bg-[#2A2D33]">
+            <div class="flex md:hidden fixed flex-col justify-between md:px-8 ">
                 <div class="text-2xl mt-7 ml-4">
-                    <button on:click={openMenu} class:hidden={isOpen}  class="border rounded-md dark:border-[#626366] px-3 py-1"><i class="fa-solid fa-bars-staggered dark:text-white"></i></button>
+                    <button on:click={openMenu} class:hidden={isOpen}  class="border rounded-md dark:border-[#626366] bg-white dark:bg-[#1B1D21] px-3 py-1"><i class="fa-solid fa-bars-staggered dark:text-white"></i></button>
                 </div>
              </div>
              <!-- if menu is open -->   
             {#if isOpen}
             <div class="flex flex-col  md:fixed top-0 left-0 right-0 bg-black  dark:bg-[#1B1D21]">
-                <div class="absolute lg:hidden inset-0 top-0 left-0 right-0 w-full h-screen bg-gray-900 dark:bg-gray-50 opacity-20"></div>
+                <div class="absolute lg:hidden inset-0 top-0 left-0 right-0 w-full h-[100%] bg-gray-900 dark:bg-gray-50 opacity-20"></div>
               <SideMenu
               completedCount={completedCount}
               inProgressCount={inProgressCount}
               taskTitles={taskTitles}
+              viewTask={viewTask}
               fetchUserDetails={fetchUserDetails}
               displayName={displayName}
               displayDashboard={displayDashboard}
@@ -221,14 +185,19 @@ const displayDashboard = () => {
             </div> 
             {/if}
         </div>
+      
         {#if showDashboard}
             <Dashboard
+            displayName={displayName}
+            fetchUserDetails={fetchUserDetails}
+              viewTask={viewTask}
               ongoingTasks={ongoingTasks}
               doneTasks={doneTasks}
               showTaskForm={showTaskForm}
               isOpen={isOpen}
+
             />
-            {:else}
+            {:else if showOtherView}
             <div class="bg-white w-full  h-full flex flex-col gap-4  dark:bg-[#2A2D33]">
                 PROJECT NAME AND SEARCH BAR  
                <div class="flex flex-col gap-8 bg-white  border rounded-b-lg shadow-md w-full fixed pt-20  md:pt-7 justify-between  px-10 pb-4 dark:bg-[#2A2D33] dark:border-none">
@@ -268,6 +237,8 @@ const displayDashboard = () => {
               </div>
            </div> 
         {/if}
+     
+       
         
        
     </div>
@@ -278,43 +249,7 @@ const displayDashboard = () => {
 
 
 <style>
-   /* circle{
-     animation: 2s linear forwards;
-   } */
-   /* @keyframes anim {
-     100% {
-        stroke-dashoffset: 0;
-     }
-   } */
-   @keyframes progressAnimation {
-    from {
-      stroke-dashoffset: 472; /* Initial dash offset */
-    }
-    
-  }
-  /* .thebg{
-    background-color: yellow;
-    animation: colors 10s infinite linear forwards;
-  }
   
-   @keyframes colors{
-    0% {
-        background-position: 0% 50%;
-        background-color: aquamarine;
-    }
-    50% {
-        background-position: 100% 50%;
-        background-color: bisque;
-    }
-    100% {
-        background-position: 0% 50%;
-        background-color: lightblue;
-    }
-   } */
-  /* Apply animation to the circle element */
-  .progress-circle {
-    animation: progressAnimation 2s linear forwards;
-  }
    .openMenu{
         transition-duration: 300ms;
    }
