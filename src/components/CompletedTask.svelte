@@ -38,7 +38,8 @@
 </script>
 
 <div transition:fade="{{duration: 300}}" class="flex flex-col gap-2">
-    <div class="px-7 xl:px-0">
+    <div class="px-7 xl:px-0 flex gap-2 items-center">
+      <i class="fa-solid fa-circle text-[0.6rem] text-green-400"></i>
         Completed
     </div>
     {#if showCards}

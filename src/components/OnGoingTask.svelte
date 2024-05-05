@@ -82,7 +82,8 @@
         <input placeholder="Search ongoing tasks" id="search-input" class="border px-2 w-full py-2 rounded-r-full dark:bg-[#3f4146] dark:border-[#898c97]" bind:value={searchQuery} on:input={searchTasks} />
     </div>
   {/if}
-  <div class="px-7 xl:px-0">
+  <div class="px-7 flex items-center gap-2 xl:px-0">
+    <i class="fa-solid fa-circle text-[0.6rem] text-orange-400"></i>
     On Going
   </div>
 <!-- Cards view -->

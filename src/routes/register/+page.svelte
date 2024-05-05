@@ -40,7 +40,7 @@ const handleSignUp = async () => {
 
  </script>
  <div class="flex flex-col gap-8 lg:gap-8  lg:flex-row min-h-[100vh]  p-10 rounded-md items-center lg:justify-around px-14 bg-[#f5f5f5] dark:bg-[#2f3134] ">
-     <div class="order-2 lg:order-none border p-8 flex flex-col gap-8 rounded-md shadow-md bg-[#edf0f0] lg:w-1/2 w-screen mt-10  dark:bg-[#232529] dark:text-white dark:border-[#454648]">
+     <div class="order-2 lg:order-none border border-black p-8 flex flex-col gap-8 rounded-md shadow-md bg-[#edf0f0] lg:w-1/2 w-screen mt-10  dark:bg-[#232529] dark:text-white dark:border-[#454648]">
          <div class="text-xl font-bold font-sans ">Create Account</div>
          <form class="flex flex-col gap-3 border p-5 border-black rounded-md  bg-white  dark:white dark:bg-[#2A2D32] dark:border-white">
             {#if authError}
