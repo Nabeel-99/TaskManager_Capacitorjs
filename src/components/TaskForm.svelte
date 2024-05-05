@@ -7,7 +7,6 @@
   import { update } from "firebase/database";
 
     export let closeTaskForm: () => void;
-    // export let taskList: {title: string, description: string, tags:string[], priority:string}[] = [];
     let title: string = ''
     let description: string = ''
     let tags: string = ''
@@ -44,7 +43,7 @@
             await updateDoc(userDocRef, {
                 tasks: arrayUnion(task),
             })
-            console.log("Task created succesfully: ", task)
+       
              // Clear the input fields and close the task form
             title = '';
             description = '';
@@ -73,11 +72,11 @@
           
             tags = ''
         }
-        console.log(addedTags)
+       
     }
     const removetags = (catToRemove: string) => {
         addedTags = addedTags.filter(item => item !== catToRemove)
-        console.log(addedTags)
+  
     }
 
  </script>

@@ -3,12 +3,10 @@
   import AllTask from "../../components/AllTask.svelte";
   import SideMenu from "../../components/SideMenu.svelte";
   import TaskForm from "../../components/TaskForm.svelte";
-  import EditTaskForm from "../../components/EditTaskForm.svelte";
   import { fade, slide } from "svelte/transition";
   import { authHandlers, authStore } from "../../store/store";
-  import { collection, getDocs, type DocumentData, query, where, doc, getDoc, updateDoc } from "firebase/firestore";
+  import { collection, getDocs, type DocumentData, query, where, doc, getDoc, updateDoc, onSnapshot } from "firebase/firestore";
   import { auth, db } from "$lib/firebase/firebase";
-  import ViewTask from "../../components/ViewTask.svelte";
 
   import Dashboard from "../../components/Dashboard.svelte";
 
@@ -22,7 +20,6 @@
   let ongoingCard: boolean = true
   let completedCard: boolean = true
   let displayName: string
-  let showDisplayCard: boolean = false
   let taskTitles: any[] = []
   let completedCount: number = 0
   let inProgressCount: number = 0
@@ -30,14 +27,6 @@
   let doneTasks: any[] = []
   let showDashboard:boolean = true
   let showOtherView:boolean = false
-
-  const displayCreateCard = () => {
-    showDisplayCard = true
-} 
-
-const closeDisplayCard = () => {
-    showDisplayCard = false
-}
 
 const fetchUserDetails = async () => {
     const user = auth.currentUser;
@@ -61,9 +50,6 @@ const fetchUserDetails = async () => {
                 doneTasks = completedTasks
                 
         }
-        console.log(`task titles: `, taskTitles)
-        console.log("completed", completedCount)
-        console.log(ongoingTasks)
        
     }
 }
@@ -100,7 +86,7 @@ const showEditForm = () => {
     isEditForm = true
   
 }
-const closeEditTaskForm = () => {
+const closeEditForm = () => {
     isEditForm = false
 }
 
@@ -109,6 +95,7 @@ const alltask = () => {
     ongoingCard = true
     completedCard = true
     isTaskForm = false
+    
 }
 
 const ongoing = () => {
@@ -127,17 +114,6 @@ const completed = () => {
 
 }
 
-const progressColor = (task: any) => {
-    if (task.progress === 25) {
-        return "red";
-    } else if (task.progress === 50) {
-        return "yellow";
-    } else if (task.progress === 75) {
-        return "green";
-    } else if (task.progress === 100) {
-        return "blue";
-    }
-};
 
 const displayDashboard = () => {
     showDashboard = true
@@ -172,7 +148,7 @@ const viewTask = () => {
              <!-- if menu is open -->   
             {#if isOpen}
             <div class="flex flex-col  md:fixed top-0 left-0 right-0 bg-black  dark:bg-[#1B1D21]">
-                <div class="absolute lg:hidden inset-0 top-0 left-0 right-0 w-full h-[100%] bg-gray-900 dark:bg-gray-50 opacity-20"></div>
+                <div class="absolute inset-0 top-0 left-0 right-0 w-full h-[100%] bg-gray-900 dark:bg-gray-50 opacity-20 "></div>
               <SideMenu
               completedCount={completedCount}
               inProgressCount={inProgressCount}
@@ -226,7 +202,7 @@ const viewTask = () => {
                            completedCard={completedCard}
                            showEditForm={showEditForm}  
                            isOpen={isOpen} 
-                           closeEditForm={closeEditTaskForm} />
+                           closeEditForm={closeEditForm} />
                         
                        {/if}
                    </div>
@@ -250,9 +226,6 @@ const viewTask = () => {
 
 <style>
   
-   .openMenu{
-        transition-duration: 300ms;
-   }
    .spin{
         animation: spin 2s infinite;
    }

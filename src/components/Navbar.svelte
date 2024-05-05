@@ -9,7 +9,6 @@
     }
     const toggleDarkMode = () => {
     // Emit custom event to toggle dark mode in the parent component
-    // This event will be handled in the parent component (layout.svelte)
     dispatch('toggleDarkMode');
   }
    const closeMenu = () => {

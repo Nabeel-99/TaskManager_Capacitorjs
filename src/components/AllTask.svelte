@@ -6,7 +6,7 @@ import ViewTask from "./ViewTask.svelte";
 import dashImage from "$lib/dashImage.jpeg"
   import EditTaskForm from "./EditTaskForm.svelte";
   import { auth, db } from "$lib/firebase/firebase";
-  import { arrayRemove, arrayUnion, collection, doc, getDocs, query, updateDoc, where } from "firebase/firestore";
+  import { arrayRemove, arrayUnion, collection, doc, getDoc, getDocs, onSnapshot, query, updateDoc, where } from "firebase/firestore";
   import { onMount } from "svelte";
   import { fade } from "svelte/transition";
 export let closeEditForm: () => void
@@ -21,7 +21,6 @@ let showEditTaskForm: boolean = false
 let userTasks: any[] = []
 let completedTasks: any[] = []
 let sortByProgressAsc = false
-let searchTerm: string = ''
 let filteredTasks: any[] = []
 let showCards: boolean = true
 let showTable: boolean = false
@@ -38,7 +37,7 @@ const fetchUserTasks = async () => {
                 completedTasks = doc.data().completedTasks || []
                 filteredTasks = userTasks
             })
-            console.log(userTasks)
+      
         }
     }  
 const markAsComplete = async (task: any) => {
@@ -58,11 +57,19 @@ const markAsComplete = async (task: any) => {
         const userDocRef = doc(db, `users/${user.uid}`)
         await updateDoc(userDocRef, {
             tasks: updatedTasks,
-            completedTasks: arrayUnion(task)
+            completedTasks: [...completedTasks, task],
         })
+        const docSnap = await getDoc(userDocRef);
+        if (docSnap.exists()) {
+            const userData = docSnap.data();
+            if (userData && userData.completedTasks) {
+                completedTasks = userData.completedTasks;
+            }
+        }
         userTasks = updatedTasks
-        completedTasks = [...completedTasks]
-        console.log("Task marked as complete:", task)
+        filteredTasks = userTasks
+      
+
     } catch (error) {
         console.log("error marking as complete", error)
     }
@@ -70,12 +77,11 @@ const markAsComplete = async (task: any) => {
    
 const viewTask = (task: any) => {
     showViewTask =  true;
-    console.log("task details: ", task)
+
     taskDetails = task
 }
 const editTask = (task: any) => {
     showEditForm()
-    console.log("task details: ", task)
     showEditTaskForm = true
     taskDetails = task
 
@@ -97,7 +103,7 @@ const sortByProgress = () => {
         filteredTasks.sort((a, b) => a.progress - b.progress)
     }
     filteredTasks = [...filteredTasks]
-    console.log(`sorted tasks:`, filteredTasks)
+   
     showMobileBtn = false
     
 }
@@ -106,7 +112,7 @@ const showCardView = () => {
     showCards = true
     showTable = false
     localStorage.setItem('view', 'cards')
-    console.log("cards clicked")
+
     showMobileBtn = false
 }
 
@@ -114,7 +120,7 @@ const showTableView = () => {
     showTable = true
     showCards = false
     localStorage.setItem('view', 'table')
-    console.log("table clicked")
+
     showMobileBtn = false
 }
 const displayMobileBtns = () => {
@@ -135,9 +141,26 @@ onMount(() => {
         showCardView()
    }
 })
-// onMount(() => {
-//     fetchUserTasks()
-// })
+onMount(async() => {
+    await fetchUserTasks()
+
+})
+
+onMount(async () => {
+    const user = auth.currentUser
+    if(user){
+        const q = query(collection(db, "users"), where("email", "==", user.email));
+        onSnapshot(q, (snapshot) => {
+        const docData = snapshot.docs[0].data();
+        userTasks = docData.tasks || [];
+        completedTasks = docData.completedTasks || [];
+        filteredTasks = userTasks;
+    });
+    }
+
+   
+});
+
 
 </script>
    <div   class="flex flex-col  gap-8 xl:flex-row  xl:h-[100vh] {showTable ? 'xl:flex-col gap-20' : ''}">
@@ -156,25 +179,17 @@ onMount(() => {
            userTasks={userTasks}/>
            {/if}
         </div>
-        <!-- {#if completedTasks.length === 0 && userTasks.length === 0}
-            <div class="flex flex-col items-center gap-4">
-                <img src={dashImage} alt="da" class="rounded-full w-72 "/>
-                <div class="flex flex-col gap-2 text-center text-xl">
-                    <h3>This is your <span class="font-bold bg-gradient-to-r from-orange-600 from-10% to-green-200 bg-clip-text ">central workspace.</span> Here,</h3>
-                    <p>you can see easily view all your tasks organizing</p>
-                    <p>your workload in structured way.</p>
-                </div>
-            </div>
-            
-        {/if} -->
         <div class="overflow-y-scroll" class:hidden={showViewTask || showEditTaskForm}>
           {#if completedCard}
-             <CompletedTask
-             completedTasks={completedTasks}
-             viewTask={viewTask}
-             fetchUserTasks={fetchUserTasks}  
-             showCards={showCards}
-             showTable={showTable}/>
+          <!-- {#key completedTasks} -->
+            <CompletedTask
+                completedTasks={completedTasks}
+                viewTask={viewTask}
+                fetchUserTasks={fetchUserTasks}  
+                showCards={showCards}
+                showTable={showTable}/>
+          <!-- {/key} -->
+            
           {/if}
         </div>
         {#if showViewTask}
@@ -184,7 +199,11 @@ onMount(() => {
         {/if}
         {#if showEditTaskForm}
         <div class="overflow-y-scroll flex justify-center">
-            <EditTaskForm userTasks={userTasks} taskDetails={taskDetails} closeEditForm={closeForm}/>
+            <EditTaskForm
+                userTasks={userTasks} 
+                taskDetails={taskDetails}
+                filteredTasks={filteredTasks} 
+                closeEditForm={closeForm}/>
         </div>
       
         {/if}

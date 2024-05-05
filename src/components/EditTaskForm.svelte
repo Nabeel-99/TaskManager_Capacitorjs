@@ -7,9 +7,9 @@
     import { update } from "firebase/database";
   
       export let closeEditForm: () => void;
-      export let userTasks: any[]
       export let taskDetails: any
-      // export let taskList: {title: string, description: string, tags:string[], priority:string}[] = [];
+      export let filteredTasks: any[]
+      export let userTasks: any[]
       let title: string = ''
       let description: string = ''
       let tags: string = ''
@@ -35,7 +35,7 @@
 
     try {
         const userDocRef = doc(db, `users/${user.uid}`);
-        const updatedUserTasks = userTasks.map(task => {
+        const updatedUserTasks = filteredTasks.map(task => {
             // Update the specific task if its ID matches the task being edited
             if (task.createdAt === taskDetails.createdAt) {
                 return {
@@ -53,14 +53,13 @@
         await updateDoc(userDocRef, {
             tasks: updatedUserTasks
         });
-
-        console.log("Task updated successfully");
+        userTasks = updatedUserTasks
+        filteredTasks = userTasks
         closeEditForm()
     } catch (error) {
         console.log("Error updating task: ", error);
     }
 };
-
 
 
       const handleAddTags = () => {
@@ -79,11 +78,11 @@
             
               tags = ''
           }
-          console.log(addedTags)
+        
       }
       const removetags = (catToRemove: string) => {
           addedTags = addedTags.filter(item => item !== catToRemove)
-          console.log(addedTags)
+
       }
 
       onMount(() => {

@@ -3,13 +3,15 @@
   import { doc, updateDoc } from "firebase/firestore";
   import { afterUpdate, onMount } from "svelte";
   import EditTaskForm from "./EditTaskForm.svelte";
-  import { fade, slide } from "svelte/transition";
+  import { fade, slide, blur, fly } from "svelte/transition";
+  import completedImage from "$lib/projectImage.svg"
+  import ongoingImage from "$lib/completed.png"
   export let viewTask: (task: any) => void
   export let editTask: (task: any) => void
   export let userTasks: any[]
   export let showCards: boolean
   export let showTable: boolean
-  export let fetchUserTasks: () => void;
+  export let fetchUserTasks: () => Promise<void>;
   export let markAsComplete: (task: any) => void;
   export let filteredTasks: any[]
   export let showSearchBar:boolean
@@ -29,7 +31,6 @@
         await updateDoc(userDocRef, {
             tasks: updatedTasks
         });
-        console.log("Task deleted successfully: ", task);
         userTasks = updatedTasks;
         filteredTasks = updatedTasks
     } catch (error) {
@@ -47,7 +48,6 @@
         await updateDoc(userDocRef, {
             tasks: userTasks
         });
-        console.log("progress updated successfully", task);
     } catch (error) {
         console.log("Error updating task: ", error);
     }
@@ -62,7 +62,7 @@
 
   onMount(() => {
       fetchUserTasks();
-    // filteredTasks = [...userTasks]; 
+
   });
   $: searchTasks();
 </script>
@@ -88,22 +88,30 @@
 <!-- Cards view -->
 {#if showCards}
 <div class="grid grid-flow-col xl:grid-rows-1 xl:grid-flow-row gap-8 pb-10 overflow-y-scroll">
+  {#await filteredTasks}
+    <p>Loading..</p>
+  {:then} 
   {#if filteredTasks.length === 0 && searchQuery !== ""}
-  <div>NO MATCHING TASKS FOUND.</div>
+  <div class="italic">NO MATCHING TASKS FOUND.</div>
     {:else if filteredTasks.length == 0}
-    <div>NO ANY ONGOING TASKS.</div>
+    <div class="p-4 rounded-md bg-white border dark:bg-[#3f4247] dark:border-none shadow-md flex flex-col items-center justify-center w-72 gap-2 px-5 py-3 h-48 italic ">
+      <div>
+          <img src={ongoingImage}  alt="" class="h-32 w-42"/>
+      </div>
+        EMPTY ONGOING TASKS
+     </div>
   {:else}
     {#each filteredTasks as task }
-     <div class="flex flex-col w-96  justify-between gap-3 border-2 rounded-lg shadow-lg p-3 dark:bg-[#3f4247] dark:border-none">
+     <div transition:blur="{{amount: 10}}" class="flex flex-col w-96  justify-between gap-3 border-2 rounded-lg shadow-lg p-3 dark:bg-[#3f4247] dark:border-none">
         <div class="flex flex-col gap-3">
           <div class="flex justify-between items-center">
-              <h4 class="text-md w-44">{task.title}</h4>
-              <button on:click={() => viewTask(task)} class="text-md border p-1 flex items-center px-2 rounded-md bg-gray-300 hover:bg-[#232529] hover:text-white dark:bg-[#626366] dark:border-none">View full task</button>
+              <h4 class="text-md w-44">{task.title.length > 20 ? task.title.slice(0, 18).concat('...') : task.title}</h4>
+              <button  on:click={() => viewTask(task)} class="text-md border p-1 flex items-center px-2 rounded-md bg-gray-300 hover:bg-[#232529] hover:text-white dark:bg-[#626366] dark:border-none">View full task</button>
           </div>
-          <h4 class="text-md dark:text-[#a0a1a4]">{task.description.slice(0,90)}...</h4>
+          <h4 class="text-md dark:text-[#a0a1a4]">{task.description.length > 20 ? task.description.slice(0,20).concat("...") : task.description}</h4>
           <div class="flex gap-2">
               {#each task.tags  as tag}
-                  <h4 class="text-md px-2 py-1 rounded-lg bg-[#7864F4]  text-white">{tag}</h4>  
+                  <h4 class="text-md px-2 py-1 rounded-lg bg-[#7864F4]  text-white">{tag.length > 20 ? tag.slice(0,12).concat("...") : tag}</h4>  
               {/each}
           </div>
           <div class="flex text-md items-center gap-3">
@@ -159,6 +167,8 @@
       </div>
     {/each}
   {/if}
+  {/await}
+ 
 </div> 
 {/if}
 <!-- Table View -->
@@ -167,11 +177,6 @@
   <table class="w-4/5 border max-h-[400px] rounded-md border-collapse">
     <thead class=" bg-gray-200 dark:bg-gray-700">
       <tr class="bg-gray-200 dark:bg-gray-700">
-        <!-- <th class="px-4 py-2 text-left">
-          <input id="headerCheckbox" type="checkbox" 
-                 checked={selectedTasks.length === filteredTasks.length}
-                 on:change={selectAll}/>
-      </th> -->
         <th class="px-4 py-2 text-left">Task</th>
         <th class="px-4 py-2 text-left">Description</th>
         <th class="px-4 py-2 text-left">Priority</th>
@@ -183,12 +188,9 @@
     </thead>
     <tbody class="overflow-y-scroll">
       {#each filteredTasks as task }
-        <tr class="border-b  dark:border-gray-600">
-          <!-- <td class="px-4 py-2">
-            <input type="checkbox" bind:checked={task.isChecked} on:change={displayOptions}  />
-          </td> -->
-          <td class="px-4 py-2">{task.title}</td>
-          <td class="px-4 py-2">{task.description.slice(0, 30)}...</td>
+        <tr transition:blur="{{amount: 10}}" class="border-b  dark:border-gray-600">
+          <td class="px-4 py-2">{task.title.length > 20 ? task.title.slice(0,18).concat("...") : task.title}</td>
+          <td class="px-4 py-2">{task.description.length > 20 ? task.description.slice(0, 20).concat("...") : task.description}</td>
           <td class="px-4 py-2">
             <span class="inline-block  py-1 text-sm font-semibold rounded-full">
               {#if task.priority === "High"}
@@ -220,7 +222,7 @@
           <td class="px-4 py-2">
             {#each task.tags as tag}
               <span class="inline-block  bg-[#7864F4]   text-white px-2 py-1 text-xs font-semibold rounded-full mr-1">
-                {tag}
+                {tag.length > 20 ? tag.slice(0,12).concat("...") : tag}
               </span>
             {/each}
           </td>
@@ -231,32 +233,6 @@
             <button title="delete task" on:click={() => deleteTask(task)} class="text-sm bg-gray-200 dark:bg-gray-700 dark:text-white px-2 py-1 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600"><i class="fa-solid  px-1 fa-trash" ></i></button>
           </td>
         </tr>
-        <!-- {#if showOptions}
-           <div class="fixed top-[83%] right-[50%] left-[40%] border rounded-md shadow-sm bg-gray-200 p-1  items-center  w-[40%]">
-               <div class="flex gap-2 justify-between">
-                  <div class="flex">
-                    <span class="text-4xl border-r border-slate-500 h-full flex items-center px-6 ">3 </span> 
-                    <h2 class="text-xl flex items-center justify-center px-2">Tasks selected</h2>
-                  </div>
-                  <div class="flex gap-8">
-                      <button class="flex flex-col justify-center items-center gap-2 hover:text-blue-800">
-                        <i class="fa-regular text-3xl fa-square-check "></i>
-                        Done
-                      </button>
-                      <button class="flex flex-col justify-center items-center gap-2 hover:text-blue-800">
-                        <i class="fa-regular text-3xl fa-trash-can" title="delete task"></i>
-                        Delete
-                      </button>
-                      <button on:click={closeDisplay} class="border-l border-slate-500 px-4 flex items-center hover:text-blue-800">
-                        <i class="fa-solid text-3xl fa-xmark"></i>
-                      </button>
-                  </div>
-              
-               </div>
-            
-
-           </div>
-        {/if} -->
       {/each}
       {#if filteredTasks.length == 0}
       <div class="flex items-center justify-center w-44 p-2 italic text-center">

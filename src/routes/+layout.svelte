@@ -12,7 +12,7 @@
 	let showNav: boolean = true
 	let showFooter: boolean = true
 	let showSideMenu: boolean = false;
-	const nonAuthRoutes = ['/', 'product']
+	const nonAuthRoutes = ['/']
 	 onMount(() => {
 		console.log('mounting')
 		const unsubscribe = auth.onAuthStateChanged(async (user: any) => {
@@ -60,7 +60,7 @@
 	 })
 	export let darkMode: boolean = false
 	const toggleDarkMode = () => {
-		console.log('clicked')
+
        darkMode = !darkMode;
       localStorage.setItem('darkMode', JSON.stringify(darkMode));
       applyDarkMode()

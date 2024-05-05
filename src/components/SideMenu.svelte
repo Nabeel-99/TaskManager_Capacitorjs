@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
   import { authHandlers } from "../store/store";
   import { auth, db } from "$lib/firebase/firebase";
-  import { collection, doc, getDoc, getDocs, query, updateDoc, where } from "firebase/firestore";
+  import { collection, doc, getDoc, getDocs, onSnapshot, query, updateDoc, where } from "firebase/firestore";
   import projectImg  from "$lib/projectImage.svg"
   import { fade, slide } from "svelte/transition";
     export let closeMenu: () => void;
@@ -16,8 +16,28 @@
     export let displayDashboard:() => void
     export let viewTask:() => void
  
+    onMount(() => {
+    const user = auth.currentUser
+    if(user){
+        const q = query(collection(db, "users"), where("email", "==", user.email))
+        const unsubscribe = onSnapshot(q, (querySnapshot: any) => {
+        const docData = querySnapshot.docs[0].data();
+        const tasks = docData.tasks || [];
+        const completedTasks = docData.completedTasks || [];
+
+        // Update state variables
+        taskTitles = tasks.map((task : any) => task.title);
+        completedCount = completedTasks.length;
+        inProgressCount = tasks.length;
+
+     
+    });
+
+    return () => unsubscribe();
+    }
 
 
+});
 const toggleDarkMode = () => {
     darkMode = !darkMode
     localStorage.setItem('darkMode', JSON.stringify(darkMode)); 
@@ -28,15 +48,6 @@ const applyDarkMode = () => {
         document.body.classList.toggle('dark', darkMode); 
     }
     
-//     const handleBodyClick = (event: MouseEvent) => {
-//     const target = event.target as HTMLElement;
-//     const sideMenu = document.getElementById('side-menu');
-//     // Check if the clicked element is inside the side menu
-//     if (!sideMenu?.contains(target)) {
-//       closeMenu(); // Close the menu if the click is outside
-//     }
-//   }   
-
 const showDropdown = () => {
     showTasks = !showTasks
 }
@@ -47,7 +58,7 @@ const showDropdown = () => {
 
 </script>
 <div  class="flex flex-col h-screen  fixed     dark:bg-[#1B1D21] dark:text-white z-10">
-<div class="flex flex-col px-4 bg-white w-80  md:w-96 lg:w-0 md:ml-0 justify-between border-r border-r-gray-400 lg:border-none  dark:text-white dark:border-r-[#626366] h-full dark:bg-[#1B1D21]">
+<div class="  flex flex-col px-4 bg-white w-80  md:w-96 lg:w-0 md:ml-0 justify-between border-r border-r-gray-400 lg:border-none  dark:text-white dark:border-r-[#626366] h-full dark:bg-[#1B1D21]">
     <div class="">
         <div class="text-4xl mt-8  px-1 md:ml-1">
             <button on:click={closeMenu}><i class="fa-solid fa-xmark"></i></button>
@@ -103,24 +114,17 @@ const showDropdown = () => {
                 {#each taskTitles.slice(-3) as task }
                     <div class="px-3 text-sm font-semibold flex gap-2 items-center ">
                         <i class="fa-solid fa-circle text-[0.4rem]"></i>
-                        {task}
+                        {task.length > 20 ? task.slice(0,18).concat("...") : task}
                     </div>
                 {/each}
             
             </div>
            {/if} 
-            <!-- PROJECT 
-            <div class="px-3 md:text-[0.7rem] font-bold pb-2">PROJECTS</div>
-            <div class="flex flex-col gap-2 justify-start">
-               {#if projectTitle.length > 0}
-                {#each projectTitle as title}
-                    <button class="px-3  hover:bg-[#232529] rounded-md hover:text-white flex">{title.name}</button>
-                {/each}
-               {/if}
-               
-            </div> -->
+     
         </div> 
     </div>
+     <!-- TOGGLE MODE  -->
+  
     <div class="mb-44 md:mb-0 text-[1.3rem] lg:w-52 ">
         <div class="flex gap-3 pb-8 ">
             <button on:click={toggleDarkMode}  class="flex gap-2 items-center md:w-52  md:text-base  px-3 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-md">
@@ -144,8 +148,7 @@ const showDropdown = () => {
 </div>
 </div>
 
-    <!-- TOGGLE MODE  -->
-  
+   
 
  
 <style>
