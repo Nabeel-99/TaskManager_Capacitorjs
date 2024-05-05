@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { View } from "drizzle-orm";
 import CompletedTask from "./CompletedTask.svelte";
 import OnGoingTask from "./OnGoingTask.svelte";
 import ViewTask from "./ViewTask.svelte";
