@@ -74,41 +74,41 @@
     }
   };
 
-  const sendTestNotification = async () => {
-    const user = auth.currentUser; // Ensure the user is signed in
-    if (user) {
-      const userDocRef = doc(db, `users/${user.uid}`);
-      const userDoc = await getDoc(userDocRef); // Use getDoc to fetch the document
+  // const sendTestNotification = async () => {
+  //   const user = auth.currentUser; // Ensure the user is signed in
+  //   if (user) {
+  //     const userDocRef = doc(db, `users/${user.uid}`);
+  //     const userDoc = await getDoc(userDocRef); // Use getDoc to fetch the document
 
-      if (userDoc.exists()) {
-        const userData = userDoc.data();
+  //     if (userDoc.exists()) {
+  //       const userData = userDoc.data();
         
-        if (userData && userData.pushToken) {
-          const notificationPayload = {
-            title: 'Test Notification',
-            body: 'This is a test notification!',
-            token: userData.pushToken,
-          };
+  //       if (userData && userData.pushToken) {
+  //         const notificationPayload = {
+  //           title: 'Test Notification',
+  //           body: 'This is a test notification!',
+  //           token: userData.pushToken,
+  //         };
 
-          // Replace with your server endpoint to send notification
-          await fetch('http://localhost:3000/send-notification', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(notificationPayload),
-          });
-          console.log('Test notification sent');
-        } else {
-          console.log('Push token not found');
-        }
-      } else {
-        console.log('User document does not exist');
-      }
-    } else {
-      console.log('User is not signed in');
-    }
-  };
+  //         // Replace with your server endpoint to send notification
+  //         await fetch('http://localhost:3000/send-notification', {
+  //           method: 'POST',
+  //           headers: {
+  //             'Content-Type': 'application/json',
+  //           },
+  //           body: JSON.stringify(notificationPayload),
+  //         });
+  //         console.log('Test notification sent');
+  //       } else {
+  //         console.log('Push token not found');
+  //       }
+  //     } else {
+  //       console.log('User document does not exist');
+  //     }
+  //   } else {
+  //     console.log('User is not signed in');
+  //   }
+  // };
 
   onMount(async () => {
     const user = auth.currentUser; // Check if user is signed in
@@ -119,10 +119,7 @@
 </script>
 
 <div class="flex w-full h-screen flex-col overflow-y-scroll px-10">
-  <div>
-    <button on:click={registerPushNotification}>Register Push Notification</button>
-    <button on:click={sendTestNotification}>Send Test Notification</button>
-  </div>
+
   <div class="flex pt-20 md:pt-0">
     <h2 class="text-[1.6rem] py-8">
       Task Manager <span class="text-gray-500 text-sm italic"

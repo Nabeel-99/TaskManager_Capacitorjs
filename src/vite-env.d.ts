@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 interface ImportMeta {
   env: {
     VITE_API_KEY: string;
@@ -8,7 +9,7 @@ interface ImportMeta {
     VITE_APP_ID: string;
     DB_URL: string;
     DB_TOKEN: string;
-    GEOCODING_APIKEY: string;
+    VITE_GEOCODING_APIKEY: string;
     VITE_VAPID_KEY: string;
   };
 }
