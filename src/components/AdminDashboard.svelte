@@ -4,18 +4,6 @@
   import completedImage from '$lib/projectImage.svg';
   import ongoingImage from '$lib/completed.png';
   import { onMount } from 'svelte';
-  import {
-    collection,
-    getDocs,
-    type DocumentData,
-    query,
-    where,
-    doc,
-    getDoc,
-    setDoc,
-    updateDoc,
-    onSnapshot,
-  } from 'firebase/firestore';
   export let ongoingTasks: any[];
   export let doneTasks: any[];
   export let showTaskForm: () => void;
@@ -24,102 +12,13 @@
   export let fetchUserDetails: () => Promise<void>;
   export let displayName: string;
   export let userDetails: any;
-  import { auth, db } from '$lib/firebase/firebase';
-  import { PushNotifications } from '@capacitor/push-notifications';
-  import { Capacitor } from '@capacitor/core';
+
   onMount(async () => {
     await fetchUserDetails();
-  });
-  const registerPushNotification = async () => {
-    if (
-      Capacitor.getPlatform() === 'android' ||
-      Capacitor.getPlatform() === 'ios'
-    ) {
-      PushNotifications.requestPermissions().then((result) => {
-        if (result.receive === 'granted') {
-          PushNotifications.register().catch((err) => {
-            console.error('Error during push notification registration:', err);
-          });
-        } else {
-          console.log('User denied permission to receive push notifications');
-        }
-      });
-
-      PushNotifications.addListener('registration', async (token) => {
-        console.log('Registration successful:', token);
-        const user = auth.currentUser; // Ensure the user is signed in
-        if (user) {
-          const userDocRef = doc(db, `users/${user.uid}`);
-          await setDoc(
-            userDocRef,
-            {
-              pushToken: token.value, // Store the token in the user's document
-            },
-            { merge: true },
-          );
-          console.log('Push token saved to Firestore');
-        } else {
-          console.log('User is not signed in');
-        }
-      });
-
-      PushNotifications.addListener(
-        'pushNotificationReceived',
-        (notification) => {
-          console.log('Notification received', notification);
-        },
-      );
-    } else {
-      console.log('Push notifications are not supported on this platform.');
-    }
-  };
-
-  // const sendTestNotification = async () => {
-  //   const user = auth.currentUser; // Ensure the user is signed in
-  //   if (user) {
-  //     const userDocRef = doc(db, `users/${user.uid}`);
-  //     const userDoc = await getDoc(userDocRef); // Use getDoc to fetch the document
-
-  //     if (userDoc.exists()) {
-  //       const userData = userDoc.data();
-        
-  //       if (userData && userData.pushToken) {
-  //         const notificationPayload = {
-  //           title: 'Test Notification',
-  //           body: 'This is a test notification!',
-  //           token: userData.pushToken,
-  //         };
-
-  //         // Replace with your server endpoint to send notification
-  //         await fetch('http://localhost:3000/send-notification', {
-  //           method: 'POST',
-  //           headers: {
-  //             'Content-Type': 'application/json',
-  //           },
-  //           body: JSON.stringify(notificationPayload),
-  //         });
-  //         console.log('Test notification sent');
-  //       } else {
-  //         console.log('Push token not found');
-  //       }
-  //     } else {
-  //       console.log('User document does not exist');
-  //     }
-  //   } else {
-  //     console.log('User is not signed in');
-  //   }
-  // };
-
-  onMount(async () => {
-    const user = auth.currentUser; // Check if user is signed in
-    if (user) {
-      await registerPushNotification();
-    }
   });
 </script>
 
 <div class="flex w-full h-screen flex-col overflow-y-scroll px-10">
-
   <div class="flex pt-20 md:pt-0">
     <h2 class="text-[1.6rem] py-8">
       Task Manager <span class="text-gray-500 text-sm italic"

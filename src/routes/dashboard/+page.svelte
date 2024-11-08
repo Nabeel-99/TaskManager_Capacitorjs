@@ -18,7 +18,7 @@
     onSnapshot,
   } from 'firebase/firestore';
   import { auth, db } from '$lib/firebase/firebase';
-  import { PushNotifications } from '@capacitor/push-notifications';
+
   import { Capacitor } from '@capacitor/core';
   import Dashboard from '../../components/Dashboard.svelte';
 
@@ -266,7 +266,6 @@
       />
     {:else if showOtherView}
       <div class="bg-white w-full h-full flex flex-col gap-4 dark:bg-[#2A2D33]">
-        PROJECT NAME AND SEARCH BAR
         <div
           class="flex flex-col gap-8 bg-white border rounded-b-lg shadow-md w-full fixed pt-20 md:pt-7 justify-between px-10 pb-4 dark:bg-[#2A2D33] dark:border-none"
         >

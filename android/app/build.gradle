@@ -1,12 +1,11 @@
 apply plugin: 'com.android.application'
-apply plugin: 'com.google.gms.google-services'
 
 android {
     namespace "com.nabeel.taskmanager"
     compileSdk rootProject.ext.compileSdkVersion
     defaultConfig {
         applicationId "com.nabeel.taskmanager"
-        minSdkVersion 23
+        minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
@@ -41,13 +40,6 @@ dependencies {
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
     implementation project(':capacitor-cordova-android-plugins')
-
-    // firebase SDKS
-    implementation platform('com.google.firebase:firebase-bom:33.3.0')
-    implementation 'com.google.firebase:firebase-analytics'
-    implementation("com.google.firebase:firebase-auth") 
-    implementation("com.google.firebase:firebase-firestore") 
-    implementation "com.google.firebase:firebase-messaging:$firebaseMessagingVersion"
 }
 
 apply from: 'capacitor.build.gradle'

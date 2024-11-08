@@ -310,7 +310,7 @@
   <!-- Cards view -->
   {#if showCards}
     <div
-      class="grid md:grid-cols-2 xl:grid-cols-3  gap-10 pb-10 w-full overflow-y-scroll {isOpen
+      class="grid md:grid-cols-2 gap-10 pb-10 w-full overflow-y-scroll {isOpen
         ? 'xl:grid-cols-2'
         : ''}"
     >

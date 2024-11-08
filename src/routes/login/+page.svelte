@@ -24,7 +24,7 @@
       authError = true;
       console.log(`auth error: ${error}`);
     } finally {
-      authenticating = false; // Reset authenticating after login attempt
+      authenticating = false;
     }
   };
 </script>

@@ -1,19 +1,7 @@
 <script lang="ts">
   // your script goes her
   import dashboardImage from '$lib/landingImage.svg';
-  import completedImage from '$lib/projectImage.svg';
-  import {
-    collection,
-    getDocs,
-    type DocumentData,
-    query,
-    where,
-    doc,
-    getDoc,
-    setDoc,
-    updateDoc,
-    onSnapshot,
-  } from 'firebase/firestore';
+
   import ongoingImage from '$lib/completed.png';
   import { onMount } from 'svelte';
   import { auth, db } from '$lib/firebase/firebase';
@@ -26,62 +14,6 @@
   export let fetchUserDetails: () => Promise<void>;
   export let fetchTaskUser: () => Promise<void>;
   export let displayName: string;
-  import { PushNotifications } from '@capacitor/push-notifications';
-  import { Capacitor } from '@capacitor/core';
-
-  const registerPushNotification = async () => {
-    const user = auth.currentUser; // Ensure the user is signed in
-
-    if (
-      Capacitor.getPlatform() === 'android' ||
-      Capacitor.getPlatform() === 'ios'
-    ) {
-      // Only proceed if the user is logged in
-      if (user) {
-        const result = await PushNotifications.requestPermissions();
-        if (result.receive === 'granted') {
-          PushNotifications.register().catch((err) => {
-            console.error('Error during push notification registration:', err);
-          });
-        } else {
-          console.log('User denied permission to receive push notifications');
-        }
-
-        // Register event listeners
-        PushNotifications.addListener('registration', async (token) => {
-          console.log('Registration successful:', token);
-          const userDocRef = doc(db, `users/${user.uid}`);
-          await setDoc(
-            userDocRef,
-            {
-              pushToken: token.value, 
-            },
-            { merge: true },
-          );
-          console.log('Push token saved to Firestore');
-        });
-
-        PushNotifications.addListener(
-          'pushNotificationReceived',
-          (notification) => {
-            console.log('Notification received', notification);
-            alert(`Notification: ${notification.title} - ${notification.body}`);
-          },
-        );
-      } else {
-        console.log('User is not signed in');
-      }
-    } else {
-      console.log('Push notifications are not supported on this platform.');
-    }
-  };
-
-  onMount(async () => {
-    const user = auth.currentUser; // Check if user is signed in
-    if (user) {
-      await registerPushNotification();
-    }
-  });
 
   onMount(() => {
     fetchUserDetails();

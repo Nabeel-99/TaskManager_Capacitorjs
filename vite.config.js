@@ -6,4 +6,7 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
   },
+  optimizeDeps: {
+    include: ['@capacitor/push-notifications'],
+  },
 });

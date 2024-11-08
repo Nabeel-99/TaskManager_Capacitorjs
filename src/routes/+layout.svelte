@@ -7,13 +7,12 @@
   import { authStore } from '../store/store';
   import AllTask from '../components/AllTask.svelte';
   import EditTaskForm from '../components/EditTaskForm.svelte';
-  import { PushNotifications } from '@capacitor/push-notifications';
-  import { Capacitor } from '@capacitor/core';
 
   let showNav: boolean = true;
   let showFooter: boolean = true;
   let showSideMenu: boolean = false;
   const nonAuthRoutes = ['/'];
+
   onMount(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user: any) => {
       const currentPath = window.location.pathname;
@@ -90,8 +89,6 @@
       applyDarkMode();
     }
   });
-
-  // Function to request permissions and register for push notifications
 </script>
 
 <div class="app dark:bg-[#232529] dark:text-white">

@@ -12,5 +12,10 @@
     "moduleResolution": "bundler",
     "types": ["vite/client"]
   },
-  "include": ["./src/**/*.ts", "./src/**/*.js"]
+  "include": [
+    "./src/**/*.ts",
+    "./src/**/*.js",
+    "server/notification.ts",
+    "server/notification.ts"
+  ]
 }

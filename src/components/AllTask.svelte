@@ -234,7 +234,7 @@
 </script>
 
 <div
-  class="flex flex-col gap-8 items-center xl:h-[100vh] {showTable
+  class="flex flex-col gap-8 items-center xl:h-full {showTable
     ? 'xl:flex-col gap-20'
     : ''}"
 >

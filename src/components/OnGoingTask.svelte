@@ -151,7 +151,7 @@
   </div>
   <!-- Cards view -->
   {#if showCards}
-    <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-10 pb-10 w-full overflow-y-scroll">
+    <div class="grid md:grid-cols-2 gap-10 pb-10 w-full overflow-y-scroll">
       {#await filteredTasks}
         <p>Loading..</p>
       {:then}

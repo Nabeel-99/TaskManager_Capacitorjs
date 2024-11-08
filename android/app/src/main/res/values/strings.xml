@@ -4,5 +4,4 @@
     <string name="title_activity_main">taskmanager</string>
     <string name="package_name">com.nabeel.taskmanager</string>
     <string name="custom_url_scheme">com.nabeel.taskmanager</string>
-    <string name="default_notification_channel_id">task_manager_channel</string>
 </resources>

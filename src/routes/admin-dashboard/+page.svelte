@@ -18,9 +18,57 @@
     onSnapshot,
   } from 'firebase/firestore';
   import { auth, db } from '$lib/firebase/firebase';
-
+  import {
+    PushNotifications,
+    type ActionPerformed,
+    type PushNotificationSchema,
+    type Token,
+  } from '@capacitor/push-notifications';
   import AdminDashboard from '../../components/AdminDashboard.svelte';
+  onMount(() => {
+    console.log('Initializing HomePage');
 
+    // Request permission to use push notifications
+    PushNotifications.requestPermissions().then((result) => {
+      if (result.receive === 'granted') {
+        // Register with Apple / Google to receive push via APNS/FCM
+        PushNotifications.register();
+      } else {
+        console.error('Push notification permission denied');
+      }
+    });
+
+    // Listener for successful registration
+    PushNotifications.addListener('registration', (token: Token) => {
+      alert(`Push registration success, token: ${token.value}`);
+      console.log('Push token:', token.value); // Use console for debugging in Svelte
+    });
+    //ekR9CqCjQsCIL703|woAN3:APA91bFjwfB7JkZZxNYqoYBUIxPPXc5zCPJyBciGeWzsEebK7XvxXnHSOwRcUcyRlyAlepgB4XTUeyURF35EG9n5KtXvge6EEiQ2hyaWfmhV8fbX-m6DYs
+
+    // Listener for registration errors
+    PushNotifications.addListener('registrationError', (error: any) => {
+      alert(`Error on registration: ${JSON.stringify(error)}`);
+      console.error('Registration error:', error);
+    });
+
+    // Listener for receiving notifications while the app is open
+    PushNotifications.addListener(
+      'pushNotificationReceived',
+      (notification: PushNotificationSchema) => {
+        alert(`Push received: ${JSON.stringify(notification)}`);
+        console.log('Push notification received:', notification);
+      },
+    );
+
+    // Listener for handling notification actions (when a user taps the notification)
+    PushNotifications.addListener(
+      'pushNotificationActionPerformed',
+      (notification: ActionPerformed) => {
+        alert(`Push action performed: ${JSON.stringify(notification)}`);
+        console.log('Notification action performed:', notification);
+      },
+    );
+  });
   let isOpen: boolean = false;
   let isTaskForm: boolean = false;
   let isEditForm: boolean = false;
@@ -99,10 +147,9 @@
             );
 
             if (adminTask) {
-              // Include the admin displayName in the returned task object
               return {
                 ...adminTask,
-                adminDisplayName: adminData.displayName, // Add the admin's display name
+                adminDisplayName: adminData.displayName,
               };
             }
           }
@@ -265,7 +312,6 @@
       />
     {:else if showOtherView}
       <div class="bg-white w-full h-full flex flex-col gap-4 dark:bg-[#2A2D33]">
-        PROJECT NAME AND SEARCH BAR
         <div
           class="flex flex-col gap-8 bg-white border rounded-b-lg shadow-md w-full fixed pt-20 md:pt-7 justify-between px-10 pb-4 dark:bg-[#2A2D33] dark:border-none"
         >
