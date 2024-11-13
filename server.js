@@ -1,7 +1,7 @@
-import express from 'express';
-import admin from 'firebase-admin';
-import cors from 'cors';
-import serviceAccount from './server/serviceAccount.json' assert { type: 'json' };
+import express from "express";
+import admin from "firebase-admin";
+import cors from "cors";
+import serviceAccount from "./server/serviceAccount.json" assert { type: "json" };
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -10,38 +10,55 @@ const db = admin.firestore();
 const app = express();
 app.use(
   cors({
-    origin: 'http://localhost:5173',
+    origin: "http://localhost:5173",
   }),
 );
 app.use(express.json());
 
-app.post('/send-notification', async (req, res) => {
-  const { userId, taskId, taskTitle } = req.body;
+app.post("/sendNotification", async (req, res) => {
+  const { assignedUsers, taskData } = req.body;
+
+  if (!assignedUsers || !taskData) {
+    return res.status(400).send("Missing data");
+  }
 
   try {
-    const userDoc = await db.collection('users').doc(userId).get();
-    if (!userDoc.exists) {
-      return res.status(404).json({ message: 'User not found' });
+    for (const userId of assignedUsers) {
+      const userDocRef = admin.firestore().doc(`users/${userId}`);
+      const userDoc = await userDocRef.get();
+
+      if (userDoc.exists) {
+        const userData = userDoc.data();
+        const fcmToken = userData?.fcmToken;
+
+        if (fcmToken) {
+          const payload = {
+            notification: {
+              title: "New Task Assigned",
+              body: `You have been assigned a new task: ${taskData.title}`,
+            },
+            token: fcmToken,
+          };
+
+          try {
+            // Send the push notification via Firebase Cloud Messaging
+            await admin.messaging().send(payload);
+            console.log(`Notification sent to ${userId}`);
+          } catch (error) {
+            console.error(`Error sending notification to ${userId}:`, error);
+          }
+        }
+      }
     }
-    const { pushToken } = userDoc.data();
-    if (!pushToken) {
-      return res.status(404).json({ message: 'User has no push token' });
-    }
-    const message = {
-      notification: {
-        title: 'New Task Assigned',
-        body: 'You have been assigned a new task.',
-      },
-      token: pushToken,
-    };
-    await admin.messaging().send(message);
-    res.status(200).send('Notification sent successfully');
+
+    res.status(200).send("Push notifications sent successfully");
   } catch (error) {
-    console.error('Error sending notification:', error);
-    res.status(500).send('Error sending notification');
+    console.error("Error sending notifications:", error);
+    res.status(500).send("Error sending notifications");
   }
 });
+
 const Port = 3000;
 app.listen(Port, () => {
-  console.log('Listening on port ', Port);
+  console.log("Listening on port ", Port);
 });

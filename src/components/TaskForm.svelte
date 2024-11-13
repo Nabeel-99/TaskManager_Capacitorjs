@@ -9,19 +9,19 @@
     serverTimestamp,
     setDoc,
     updateDoc,
-  } from 'firebase/firestore';
-  import { authStore } from '../store/store';
-  import OnGoingTask from './OnGoingTask.svelte';
-  import { onMount } from 'svelte';
-  import { auth, db } from '$lib/firebase/firebase';
-  import { update } from 'firebase/database';
-  import UserSelectModal from './UserSelectModal.svelte'; // Import the modal component
-  import { Capacitor } from '@capacitor/core';
+  } from "firebase/firestore";
+  import { authStore } from "../store/store";
+  import OnGoingTask from "./OnGoingTask.svelte";
+  import { onMount } from "svelte";
+  import { auth, db } from "$lib/firebase/firebase";
+  import { update } from "firebase/database";
+  import UserSelectModal from "./UserSelectModal.svelte"; // Import the modal component
+  import { Capacitor } from "@capacitor/core";
 
   export let closeTaskForm: () => void;
-  let title: string = '';
-  let description: string = '';
-  let priority: string = '';
+  let title: string = "";
+  let description: string = "";
+  let priority: string = "";
   let showCategoriesAdded: boolean = false;
   let showUserModal: boolean = false;
   let selectedUsers: string[] = [];
@@ -30,20 +30,20 @@
 
   const fetchUsers = async () => {
     try {
-      const usersCollection = collection(db, 'users');
+      const usersCollection = collection(db, "users");
       const userDocs = await getDocs(usersCollection);
       allUsers = userDocs.docs
         .map((doc) => {
           const data = doc.data();
           return {
             uid: doc.id,
-            displayName: data.displayName || 'No Name',
-            role: data.role || 'user',
+            displayName: data.displayName || "No Name",
+            role: data.role || "user",
           };
         })
-        .filter((user) => user.role !== 'admin');
+        .filter((user) => user.role !== "admin");
     } catch (error) {
-      console.log('Error fetching users', error);
+      console.log("Error fetching users", error);
     }
   };
 
@@ -57,94 +57,93 @@
   };
 
   const createTask = async () => {
-  if (!title || !description || !priority) {
-    console.log('Please fill in all required fields');
-    return;
-  }
-
-  const user = auth.currentUser;
-  if (!user) {
-    console.log('User is not authenticated');
-    return;
-  }
-
-  // Create a new task document with Firestore auto-generated ID
-  const newTaskRef = doc(collection(db, 'tasks')); // Create a reference to a new task document
-  const taskId = newTaskRef.id; // Get the auto-generated ID
-
-  const task = {
-    Id: taskId,
-    title,
-    description,
-    priority,
-    progress: 0,
-    createdAt: new Date(),
-    assignedUsers: selectedUsers,
-  };
-
-  try {
-    // Set the task document with the auto-generated ID
-    await setDoc(newTaskRef, task);
-
-    // Update admin's tasks array
-    const adminDocRef = doc(db, `users/${user.uid}`);
-    await updateDoc(adminDocRef, {
-      tasks: arrayUnion(task),
-    });
-
-    // Update each assigned user's document to include this task
-    const userUpdates = selectedUsers.map((userId) => {
-      const userDocRef = doc(db, `users/${userId}`);
-      return updateDoc(userDocRef, {
-        assignedTasks: arrayUnion({
-          Id: taskId,
-          adminId: user.uid,
-        }),
-      });
-    });
-    await Promise.all(userUpdates);
-
-    console.log('Task created successfully');
-
-       // Check platform and send notifications to assigned users only on mobile
-       if (Capacitor.getPlatform() === 'android' || Capacitor.getPlatform() === 'ios') {
-      selectedUsers.forEach(async (userId) => {
-        const userDocRef = doc(db, `users/${userId}`);
-        const userSnapshot = await getDoc(userDocRef);
-        const userData = userSnapshot.data();
-
-        if (userData && userData.pushToken) {
-          const notificationPayload = {
-            userId, // Send userId for the server
-            taskId,  // Send taskId for the server
-            taskTitle: title, // Send task title
-          };
-
-          await fetch('http://192.168.100.19:3000/send-notification', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(notificationPayload),
-          });
-        }
-      });
-    } else {
-      console.log('Notifications are only sent on mobile platforms.');
+    if (!title || !description || !priority) {
+      console.log("Please fill in all required fields");
+      return;
     }
 
-    // Reset form fields
-    title = '';
-    description = '';
-    priority = '';
-    selectedUsers = [];
-    showCategoriesAdded = false;
-    assignedUsersCount = 0;
-    closeTaskForm();
-  } catch (error) {
-    console.log('Error creating task', error);
-  }
-};
+    const user = auth.currentUser;
+    if (!user) {
+      console.log("User is not authenticated");
+      return;
+    }
+
+    // Create a new task document with Firestore auto-generated ID
+    const newTaskRef = doc(collection(db, "tasks")); // Create a reference to a new task document
+    const taskId = newTaskRef.id; // Get the auto-generated ID
+
+    const task = {
+      Id: taskId,
+      title,
+      description,
+      priority,
+      progress: 0,
+      createdAt: new Date(),
+      assignedUsers: selectedUsers, // List of user IDs assigned to this task
+    };
+
+    try {
+      // Set the task document with the auto-generated ID
+      await setDoc(newTaskRef, task);
+
+      // Update admin's tasks array
+      const adminDocRef = doc(db, `users/${user.uid}`);
+      await updateDoc(adminDocRef, {
+        tasks: arrayUnion(task),
+      });
+
+      // Update each assigned user's document to include this task
+      const userUpdates = selectedUsers.map((userId) => {
+        const userDocRef = doc(db, `users/${userId}`);
+        return updateDoc(userDocRef, {
+          assignedTasks: arrayUnion({
+            Id: taskId,
+            adminId: user.uid,
+          }),
+        });
+      });
+      await Promise.all(userUpdates);
+
+      console.log("Task created successfully");
+
+      // Send notifications to assigned users (Call local backend to send notifications)
+      await sendPushNotificationToUsers(selectedUsers, task);
+
+      // Reset form fields
+      title = "";
+      description = "";
+      priority = "";
+      selectedUsers = [];
+      showCategoriesAdded = false;
+      assignedUsersCount = 0;
+      closeTaskForm();
+    } catch (error) {
+      console.log("Error creating task", error);
+    }
+  };
+
+  const sendPushNotificationToUsers = async (assignedUsers, taskData) => {
+    try {
+      const response = await fetch("http://localhost:3000/sendNotification", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          assignedUsers,
+          taskData,
+        }),
+      });
+
+      if (response.ok) {
+        console.log("Push notification sent successfully");
+      } else {
+        console.error("Error sending notification");
+      }
+    } catch (error) {
+      console.error("Error calling backend for notifications:", error);
+    }
+  };
 
   onMount(() => {
     fetchUsers();

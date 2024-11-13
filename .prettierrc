@@ -1,10 +1,9 @@
 {
-    "plugins": ["prettier-plugin-svelte"],
-    "semi": true,
-    "singleQuote": true,
-    "svelteSortOrder": "scripts-markup-styles-options",  
-    "svelteStrictMode": false,
-    "svelteBracketNewLine": true,
-    "svelteAllowShorthand": true
-  }
-  
+  "plugins": ["prettier-plugin-svelte"],
+  "semi": true,
+  "singleQuote": false,
+  "svelteSortOrder": "scripts-markup-styles-options",
+  "svelteStrictMode": false,
+  "svelteBracketNewLine": true,
+  "svelteAllowShorthand": true
+}

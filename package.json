@@ -39,6 +39,7 @@
     "express": "^4.21.0",
     "firebase": "^10.11.0",
     "firebase-admin": "^12.6.0",
+    "firebase-tools": "^13.25.0",
     "nodemon": "^3.1.7"
   },
   "description": "Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/main/packages/create-svelte).",
