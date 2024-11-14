@@ -7,17 +7,28 @@
   import { authStore } from "../store/store";
   import AllTask from "../components/AllTask.svelte";
   import EditTaskForm from "../components/EditTaskForm.svelte";
+  import { Toast } from "@capacitor/toast";
   import {
     PushNotifications,
     type ActionPerformed,
     type PushNotificationSchema,
     type Token,
   } from "@capacitor/push-notifications";
+
   let showNav: boolean = true;
   let showFooter: boolean = true;
   let showSideMenu: boolean = false;
   const nonAuthRoutes = ["/"];
 
+  const handlePushReceived = async (notification: PushNotificationSchema) => {
+    console.log("Push notification received:", notification);
+    const message = notification.body || "You have a new notification!";
+    await Toast.show({
+      text: message,
+      duration: "long",
+      position: "top",
+    });
+  };
   onMount(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user: any) => {
       const currentPath = window.location.pathname;
@@ -55,30 +66,22 @@
           console.log("user is not logged in");
         }
       });
-      // device 1
-      //ekR9CqCjQsCIL703|woAN3:APA91bFjwfB7JkZZxNYqoYBUIxPPXc5zCPJyBciGeWzsEebK7XvxXnHSOwRcUcyRlyAlepgB4XTUeyURF35EG9n5KtXvge6EEiQ2hyaWfmhV8fbX-m6DYs
-      // device2
-      //c-DpGD0hRZmlqHHB6vwUmk:APA91bHZnbzLKD62ZyA5i7POFk3HDwqvlb3B-_6f3npBoELSQ_xdNqyP1E_gJgl9H8XiBKuYelcSC67Dno1wAAPfENMCXMpz362LO97qm1QhtwOuYZsBo4U
       // Listener for registration errors
       PushNotifications.addListener("registrationError", (error: any) => {
-        alert(`Error on registration: ${JSON.stringify(error)}`);
+        // alert(`Error on registration: ${JSON.stringify(error)}`);
         console.error("Registration error:", error);
       });
 
       // Listener for receiving notifications while the app is open
       PushNotifications.addListener(
         "pushNotificationReceived",
-        (notification: PushNotificationSchema) => {
-          alert(`Push received: ${JSON.stringify(notification)}`);
-          console.log("Push notification received:", notification);
-        },
+        handlePushReceived,
       );
 
-      // Listener for handling notification actions (when a user taps the notification)
       PushNotifications.addListener(
         "pushNotificationActionPerformed",
         (notification: ActionPerformed) => {
-          alert(`Push action performed: ${JSON.stringify(notification)}`);
+          // alert(`Push action performed: ${JSON.stringify(notification)}`);
           console.log("Notification action performed:", notification);
         },
       );

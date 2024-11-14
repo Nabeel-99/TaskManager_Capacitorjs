@@ -9,22 +9,21 @@
     getDocs,
     serverTimestamp,
     updateDoc,
-  } from 'firebase/firestore';
-  import { authStore } from '../store/store';
-  import OnGoingTask from './OnGoingTask.svelte';
-  import { onMount } from 'svelte';
-  import { auth, db } from '$lib/firebase/firebase';
-  import { update } from 'firebase/database';
-  import UserSelectModal from './UserSelectModal.svelte';
-
+  } from "firebase/firestore";
+  import { authStore } from "../store/store";
+  import OnGoingTask from "./OnGoingTask.svelte";
+  import { onMount } from "svelte";
+  import { auth, db } from "$lib/firebase/firebase";
+  import { update } from "firebase/database";
+  import UserSelectModal from "./UserSelectModal.svelte";
   export let closeEditForm: () => void;
   export let taskDetails: any;
   export let filteredTasks: any[];
   export let userTasks: any[];
-  let title: string = '';
-  let description: string = '';
+  let title: string = "";
+  let description: string = "";
 
-  let priority: string = '';
+  let priority: string = "";
 
   let showUserModal: boolean = false;
   let selectedUsers: string[] = [];
@@ -40,32 +39,32 @@
   };
   const fetchUsers = async () => {
     try {
-      const usersCollection = collection(db, 'users');
+      const usersCollection = collection(db, "users");
       const userDocs = await getDocs(usersCollection);
       allUsers = userDocs.docs
         .map((doc) => {
           const data = doc.data();
           return {
             uid: doc.id,
-            displayName: data.displayName || 'No Name',
-            role: data.role || 'user',
+            displayName: data.displayName || "No Name",
+            role: data.role || "user",
           };
         })
-        .filter((user) => user.role !== 'admin');
+        .filter((user) => user.role !== "admin");
     } catch (error) {
-      console.log('Error fetching users', error);
+      console.log("Error fetching users", error);
     }
   };
 
   const updateTask = async () => {
     if (!title || !description || !priority) {
-      console.log('Please fill in all required fields');
+      console.log("Please fill in all required fields");
       return;
     }
 
     const user = auth.currentUser;
     if (!user) {
-      console.log('User is not authenticated');
+      console.log("User is not authenticated");
       return;
     }
 
@@ -74,7 +73,7 @@
       const userSnapshot = await getDoc(userDocRef);
       const userData = userSnapshot.data();
       if (!userData || !userData.tasks) {
-        console.log('No tasks found for the user');
+        console.log("No tasks found for the user");
         return;
       }
 
@@ -86,13 +85,12 @@
             title,
             description,
             priority,
-            assignedUsers: selectedUsers, // Update assigned users
+            assignedUsers: selectedUsers,
           };
         }
         return task;
       });
 
-      // Update the user document with the modified tasks array
       await updateDoc(userDocRef, {
         tasks: updatedTasks,
       });
@@ -108,8 +106,8 @@
         (userId) => !selectedUsers.includes(userId),
       );
 
-      console.log('Added users:', addedUsers);
-      console.log('Removed users:', removedUsers);
+      console.log("Added users:", addedUsers);
+      console.log("Removed users:", removedUsers);
 
       // Add tasks to newly assigned users
       const addTasksPromises = addedUsers.map((userId) => {
@@ -123,7 +121,7 @@
       });
       await Promise.all(addTasksPromises);
 
-      console.log('Updated assignedTasks for newly added users');
+      console.log("Updated assignedTasks for newly added users");
 
       // Remove tasks from previously assigned users
       const removeTasksPromises = removedUsers.map((userId) => {
@@ -137,25 +135,48 @@
       });
       await Promise.all(removeTasksPromises);
 
-      console.log('Removed assignedTasks from previously assigned users');
-
+      console.log("Removed assignedTasks from previously assigned users");
+      await sendPushNotificationToUsers(selectedUsers, taskDetails);
       // Reset form fields and close the form
-      title = '';
-      description = '';
-      priority = '';
+      title = "";
+      description = "";
+      priority = "";
       selectedUsers = [];
       assignedUsersCount = 0;
       closeEditForm();
     } catch (error) {
-      console.error('Error updating task: ', error);
+      console.error("Error updating task: ", error);
+    }
+  };
+
+  const sendPushNotificationToUsers = async (assignedUsers, taskData) => {
+    try {
+      const response = await fetch("http://localhost:3000/sendNotification", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          assignedUsers,
+          taskData,
+        }),
+      });
+
+      if (response.ok) {
+        console.log("Push notification sent successfully");
+      } else {
+        console.error("Error sending notification");
+      }
+    } catch (error) {
+      console.error("Error calling backend for notifications:", error);
     }
   };
 
   onMount(() => {
     if (taskDetails) {
-      title = taskDetails.title || '';
-      description = taskDetails.description || '';
-      priority = taskDetails.priority || '';
+      title = taskDetails.title || "";
+      description = taskDetails.description || "";
+      priority = taskDetails.priority || "";
       selectedUsers = taskDetails.assignedUsers || []; // Pre-select assigned users
       assignedUsersCount = selectedUsers.length;
       fetchUsers(); // Fetch users to populate the modal

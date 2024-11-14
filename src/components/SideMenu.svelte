@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { authHandlers } from '../store/store';
-  import { auth, db } from '$lib/firebase/firebase';
+  import { onMount } from "svelte";
+  import { authHandlers } from "../store/store";
+  import { auth, db } from "$lib/firebase/firebase";
   import {
     collection,
     doc,
@@ -11,16 +11,16 @@
     query,
     updateDoc,
     where,
-  } from 'firebase/firestore';
-  import projectImg from '$lib/projectImage.svg';
-  import { fade, slide } from 'svelte/transition';
-  import { Geolocation } from '@capacitor/geolocation';
+  } from "firebase/firestore";
+  import projectImg from "$lib/projectImage.svg";
+  import { fade, slide } from "svelte/transition";
+  import { Geolocation } from "@capacitor/geolocation";
   export let closeMenu: () => void;
   export let displayName: string;
   export let userRole: string;
   export let fetchUserDetails: () => void;
   let darkMode: boolean =
-    localStorage.getItem('darkMode')?.valueOf() === 'true' ? true : false;
+    localStorage.getItem("darkMode")?.valueOf() === "true" ? true : false;
   let showTasks: boolean = false;
   export let taskTitles: any[];
   export let completedCount: number;
@@ -29,12 +29,12 @@
   export let displayDashboard: () => void;
   export let viewTask: () => void;
 
-  let error = '';
+  let error = "";
 
   let location = {
-    city: '',
-    country: '',
-    error: '',
+    city: "",
+    country: "",
+    error: "",
   };
 
   let locationEnabled = false;
@@ -43,8 +43,8 @@
     const user = auth.currentUser;
     if (user) {
       const q = query(
-        collection(db, 'users'),
-        where('email', '==', user.email),
+        collection(db, "users"),
+        where("email", "==", user.email),
       );
       const unsubscribe = onSnapshot(q, (querySnapshot: any) => {
         const docData = querySnapshot.docs[0].data();
@@ -62,12 +62,12 @@
   });
   const toggleDarkMode = () => {
     darkMode = !darkMode;
-    localStorage.setItem('darkMode', JSON.stringify(darkMode));
+    localStorage.setItem("darkMode", JSON.stringify(darkMode));
     applyDarkMode();
   };
 
   const applyDarkMode = () => {
-    document.body.classList.toggle('dark', darkMode);
+    document.body.classList.toggle("dark", darkMode);
   };
 
   const showDropdown = () => {
@@ -76,10 +76,10 @@
   onMount(fetchUserDetails);
 
   const loadLocationState = () => {
-    const storedEnabled = localStorage.getItem('locationEnabled');
-    const storedData = localStorage.getItem('locationData');
+    const storedEnabled = localStorage.getItem("locationEnabled");
+    const storedData = localStorage.getItem("locationData");
 
-    if (storedEnabled === 'true') {
+    if (storedEnabled === "true") {
       locationEnabled = true;
       if (storedData) {
         location = JSON.parse(storedData);
@@ -87,17 +87,16 @@
     }
   };
 
-  // Call this function in your component's lifecycle or useEffect
   loadLocationState();
 
   const enableLocation = async () => {
     if (locationEnabled) {
       // Disable location
-      location.city = '';
-      location.country = '';
+      location.city = "";
+      location.country = "";
       locationEnabled = false;
-      localStorage.removeItem('locationEnabled');
-      localStorage.removeItem('locationData');
+      localStorage.removeItem("locationEnabled");
+      localStorage.removeItem("locationData");
     } else {
       // Enable location
       if (capacitorIsWeb()) {
@@ -108,8 +107,8 @@
               const longitude = position.coords.longitude;
               await fetchCityAndCountry(latitude, longitude);
               locationEnabled = true;
-              localStorage.setItem('locationEnabled', 'true');
-              localStorage.setItem('locationData', JSON.stringify(location));
+              localStorage.setItem("locationEnabled", "true");
+              localStorage.setItem("locationData", JSON.stringify(location));
             },
             () => {
               locationEnabled = false; // Error handling
@@ -118,14 +117,14 @@
         }
       } else {
         const permission = await Geolocation.requestPermissions();
-        if (permission.location === 'granted') {
+        if (permission.location === "granted") {
           const position = await Geolocation.getCurrentPosition();
           const latitude = position.coords.latitude;
           const longitude = position.coords.longitude;
           await fetchCityAndCountry(latitude, longitude);
           locationEnabled = true;
-          localStorage.setItem('locationEnabled', 'true');
-          localStorage.setItem('locationData', JSON.stringify(location));
+          localStorage.setItem("locationEnabled", "true");
+          localStorage.setItem("locationData", JSON.stringify(location));
         } else {
           locationEnabled = false; // Permission denied
         }
@@ -136,7 +135,7 @@
   // Fetch city and country logic remains unchanged
   const fetchCityAndCountry = async (latitude, longitude) => {
     try {
-      const apikey = 'ed40cb095e3b2959e0087686bca9659a'; 
+      const apikey = "ed40cb095e3b2959e0087686bca9659a";
       const response = await fetch(
         `https://api.openweathermap.org/geo/1.0/reverse?lat=${latitude}&lon=${longitude}&limit=5&appid=${apikey}`,
       );
@@ -145,24 +144,24 @@
         location.city = data[0].name;
         location.country = data[0].country;
       } else {
-        location.error = 'Unable to retrieve city or country.';
+        location.error = "Unable to retrieve city or country.";
       }
     } catch (error) {
-      location.error = 'Error fetching city/country: ' + error.message;
+      location.error = "Error fetching city/country: " + error.message;
     }
   };
   const capacitorIsWeb = () => {
     return (
-      window.location.protocol === 'http:' ||
-      window.location.protocol === 'https:'
+      window.location.protocol === "http:" ||
+      window.location.protocol === "https:"
     );
   };
 
   onMount(() => {
-    const enabled = localStorage.getItem('locationEnabled');
-    const savedLocation = localStorage.getItem('locationData');
+    const enabled = localStorage.getItem("locationEnabled");
+    const savedLocation = localStorage.getItem("locationData");
 
-    if (enabled === 'true' && savedLocation) {
+    if (enabled === "true" && savedLocation) {
       locationEnabled = true;
       location = JSON.parse(savedLocation);
     }
@@ -225,19 +224,19 @@
             >
               <div class="px-4 flex items-center gap-2">
                 <i class="fa-solid fa-circle text-[0.4rem] text-orange-400"></i>
-                {#if userRole === 'admin'}
+                {#if userRole === "admin"}
                   In progress
                 {:else}
                   Assigned Tasks
                 {/if}
               </div>
-              {#if userRole === 'admin'}
+              {#if userRole === "admin"}
                 <p>{inProgressCount}</p>
               {:else}
                 <p>{assignedTasksCount}</p>
               {/if}
             </div>
-            {#if userRole === 'admin'}
+            {#if userRole === "admin"}
               <div
                 class="px-3 text-sm font-semibold cursor-default flex gap-2 hover:bg-gray-100 dark:hover:bg-gray-600 py-1 rounded-md justify-between items-center"
               >
@@ -249,12 +248,12 @@
                 {completedCount}
               </div>
             {/if}
-            {#if userRole == 'admin'}
+            {#if userRole == "admin"}
               <p class="px-3 text-sm">Recently created tasks</p>
               {#each taskTitles.slice(-3) as task}
                 <div class="px-3 text-sm font-semibold flex gap-2 items-center">
                   <i class="fa-solid fa-circle text-[0.4rem]"></i>
-                  {task.length > 20 ? task.slice(0, 18).concat('...') : task}
+                  {task.length > 20 ? task.slice(0, 18).concat("...") : task}
                 </div>
               {/each}
             {/if}

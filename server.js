@@ -3,10 +3,10 @@ import admin from "firebase-admin";
 import cors from "cors";
 import serviceAccount from "./server/serviceAccount.json" assert { type: "json" };
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-});
-const db = admin.firestore();
+// admin.initializeApp({
+//   credential: admin.credential.cert(serviceAccount),
+// });
+admin.initializeApp();
 const app = express();
 app.use(
   cors({
@@ -41,7 +41,6 @@ app.post("/sendNotification", async (req, res) => {
           };
 
           try {
-            // Send the push notification via Firebase Cloud Messaging
             await admin.messaging().send(payload);
             console.log(`Notification sent to ${userId}`);
           } catch (error) {
