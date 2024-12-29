@@ -1,15 +1,15 @@
 <script lang="ts">
-  import heroImage from '$lib/overview.png';
+  import heroImage from "$lib/overview.png";
   export let darkMode: boolean;
-  import landingImage from '$lib/landingImage.svg';
+  import landingImage from "$lib/landingImage.svg";
 
-  let projectName: string = '';
+  let projectName: string = "";
 </script>
 
 <!-- landing page -->
 <div class="flex flex-col justify-center text-center items-center gap-2">
   <h1 class="md:text-[3rem] text-2xl font-bold leading-tight tracking-tight">
-    Welcome to My Task Manager
+    Welcome to TaskPro
   </h1>
   <p class="md:text-base md:whitespace-pre-wrap">
     Organize and prioritize your workload to maintain focus and enhance

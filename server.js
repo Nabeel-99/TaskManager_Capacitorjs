@@ -3,10 +3,10 @@ import admin from "firebase-admin";
 import cors from "cors";
 import serviceAccount from "./server/serviceAccount.json" assert { type: "json" };
 
-// admin.initializeApp({
-//   credential: admin.credential.cert(serviceAccount),
-// });
-admin.initializeApp();
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
+// admin.initializeApp();
 const app = express();
 app.use(
   cors({
